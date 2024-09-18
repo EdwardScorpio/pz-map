@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PixelZone 2x2 PBteam map
 // @namespace    http://tampermonkey.net/
-// @version      2.0.7.4
+// @version      2.0.7.5
 // @description  Overlay-like tool for pixelzone.io
 // @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio & MDOwlman
 // @match        https://pixelzone.io/*
@@ -13,7 +13,7 @@
 // ==/UserScript==
 
 /* Based on https://github.com/Pinkfloydd/ArgentinaMap_PixelZone
-1111111111111111111111111111111111111111111111
+
 Инструкции
 
 Используйте плагин Tampermonkey, чтобы внедрить это в игру. Добавьте скрипт, вставьте код.
