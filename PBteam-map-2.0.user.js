@@ -173,24 +173,22 @@ input:checked + .slider:before {
         <canvas id="minimap-board" style="width: 100%; height: 100%;z-index:2;position:absolute;top:0;left:0;"></canvas>
         <canvas id="minimap-cursor" style="width: 100%; height: 100%;z-index:3;position:absolute;top:0;left:0;"></canvas>
       </div>
-      <div id="minimap-config" style="line-height:15px;"><br>
-        <span id="hide-map" style="cursor:pointer;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;margin-right:8px;">Hide</span>
-        <span id="settings-map" style="cursor:pointer;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;margin-right:32px;">Settings</span>
-        <span style='user-select: none;'>Zoom:</span>
-        <span id="zoom-plus" style="cursor:pointer;font-weight:bold;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">&nbsp;+&nbsp;</span>
-        <span id="zoom-minus" style="cursor:pointer;font-weight:bold;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">&nbsp;-&nbsp;</span>
-      </div>
+<div id="minimap-config" style="line-height:15px;"><br>
+  <span id="hide-map" style="cursor:pointer;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;margin-right:8px;">Hide</span>
+  <span id="settings-map" style="cursor:pointer;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;margin-right:32px;">Settings</span>
+  <span style='user-select: none;'>Zoom:</span>
+  <span id="zoom-plus" style="cursor:pointer;font-weight:bold;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">&nbsp;+&nbsp;</span>
+  <span id="zoom-minus" style="cursor:pointer;font-weight:bold;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">&nbsp;-&nbsp;</span>
+  <span style='user-select: none; margin-left: 16px;'>Auto-Color</span>
+  <label class="switch" style="vertical-align: middle;">
+    <input id='autoColor' type="checkbox">
+    <span class="slider round"></span>
+  </label>
+</div>
     </div>
 
 <div id="minimap_settings" style="background-size:100%; width:250px; height:auto; text-align:center; display:none;">
       <div id="minimap-title" style="line-height:15px;font-size:1.2em;user-select:none;padding:8px;">Settings</div>
-      <br>
-      <span style='user-select: none; padding-right: 16px;'>Auto-Color</span>
-      <label class="switch">
-        <input id='autoColor' type="checkbox">
-        <span class="slider round"></span>
-      </label>
-      <br><br>
       <span style='user-select: none; padding-right: 16px;'>Faction</span>
       <select style='outline:0;font-family:Nunito,sans-serif;border-radius:32px;'><option>PBteam</option></select>
       <br><br>
@@ -750,6 +748,24 @@ window.addEventListener('keydown', function (e) {
       } else {
         coords.style.display = "none";
       }*/
+      break;
+ case 187: // клавиша "="
+    zooming_in = true;
+    zooming_out = false;
+    zoomIn();
+    zooming_in = false;
+    break;
+  case 189: // клавиша "-"
+    zooming_out = true;
+    zooming_in = false;
+    zoomOut();
+    zooming_out = false;
+    break;
+case 48: // клавиша "0"
+  document.getElementById('autoColor').checked = !document.getElementById('autoColor').checked;
+  break;
+  case 57: // клавиша "9"
+      document.getElementById("check-updates").click();
       break;
     default:
       console.log("keydown", e.keyCode, e.key);
