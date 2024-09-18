@@ -13,7 +13,7 @@
 // ==/UserScript==
 
 /* Based on https://github.com/Pinkfloydd/ArgentinaMap_PixelZone
-
+1111111111111111111111111111111111111111111111
 Инструкции
 
 Используйте плагин Tampermonkey, чтобы внедрить это в игру. Добавьте скрипт, вставьте код.
