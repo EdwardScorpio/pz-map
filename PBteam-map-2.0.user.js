@@ -6,8 +6,8 @@
 // @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio & MDOwlman
 // @match        https://pixelzone.io/*
 // @homepage     https://github.com/EdwardScorpio/pz/
-// @updateURL    https://github.com/EdwardScorpio/pz-map/raw/main/PixelZone%202x2%20PBteam%20map-2.0.7.user.js
-// @downloadURL  https://github.com/EdwardScorpio/pz-map/raw/main/PixelZone%202x2%20PBteam%20map-2.0.7.user.js
+// @updateURL    https://raw.githubusercontent.com/EdwardScorpio/pz-map/main/PBteam-map-2.0.user.js
+// @downloadURL  https://raw.githubusercontent.com/EdwardScorpio/pz-map/main/PBteam-map-2.0.user.js
 // @grant        none
 // @run-at       document-end
 // ==/UserScript==
