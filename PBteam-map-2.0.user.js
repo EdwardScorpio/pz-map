@@ -845,27 +845,3 @@ function getCookie(name) {
 }
 
 let isCheckingForUpdates = false;
-
-function checkForUpdates(silent = false) {
-    if (isCheckingForUpdates) return;
-    isCheckingForUpdates = true;
-
-    const updateURL = "https://raw.githubusercontent.com/EdwardScorpio/pz-map/main/PBteam-map-2.0.user.js";
-    fetch(updateURL)
-        .then(response => response.text())
-        .then(data => {
-            const remoteVersion = data.match(/@version\s+(\S+)/);
-            const currentVersion = GM_info.script.version;
-            if (remoteVersion && compareVersions(remoteVersion[1], currentVersion) > 0) {
-                if (confirm("Доступна новая версия скрипта. Хотите обновить?")) {
-                    window.open(updateURL, "_blank");
-                }
-            } else if (!silent) {
-                alert("У вас установлена последняя версия скрипта.");
-            }
-        })
-        .catch(error => console.error('Ошибка при проверке обновлений:', error))
-        .finally(() => {
-            isCheckingForUpdates = false;
-        });
-}
