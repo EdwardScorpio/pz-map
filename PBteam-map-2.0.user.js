@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PixelZone 2x2 PBteam map
 // @namespace    http://tampermonkey.net/
-// @version      2.1.1
+// @version      2.1.0
 // @description  Overlay-like tool for pixelzone.io
 // @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio & MDOwlman
 // @match        https://pixelzone.io/*
@@ -48,7 +48,7 @@ Number.prototype.between = function (a, b) {
 
 function startup() {
 
-    checkForUpdates(true);
+addUpdateCheckListener();
 
 function addUpdateCheckListener() {
     const checkUpdatesButton = document.getElementById("check-updates");
@@ -215,48 +215,6 @@ input:checked + .slider:before {
 
 document.body.appendChild(div);
 
-// Функция для проверки обновлений
-function checkForUpdates(silent = false) {
-    const updateURL = "https://raw.githubusercontent.com/EdwardScorpio/pz-map/main/PBteam-map-2.0.user.js";
-    fetch(updateURL)
-        .then(response => response.text())
-        .then(data => {
-            const remoteVersion = data.match(/@version\s+(\S+)/);
-            const currentVersion = GM_info.script.version;
-            if (remoteVersion && compareVersions(remoteVersion[1], currentVersion) > 0) {
-                if (confirm("Доступна новая версия скрипта. Хотите обновить?")) {
-                    window.open(updateURL, "_blank");
-                }
-            } else if (!silent) {
-                alert("У вас установлена последняя версия скрипта.");
-            }
-        })
-        .catch(error => console.error('Ошибка при проверке обновлений:', error));
-}
-
-function compareVersions(v1, v2) {
-    const parts1 = v1.split('.').map(Number);
-    const parts2 = v2.split('.').map(Number);
-    for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
-        const part1 = parts1[i] || 0;
-        const part2 = parts2[i] || 0;
-        if (part1 > part2) return 1;
-        if (part1 < part2) return -1;
-    }
-    return 0;
-}
-
-
-// Добавляем обработчик события для кнопки проверки обновлений
-document.getElementById("check-updates").addEventListener("click", () => checkForUpdates(false));
-
-// Автоматическая проверка обновлений каждые 12 часов
-setInterval(() => checkForUpdates(true), 12 * 60 * 60 * 1000);
-
-// Проверка обновлений при загрузке страницы
-checkForUpdates(true);
-
-
 function setScriptVersion() {
   const versionSpan = document.getElementById('script-version');
   if (versionSpan) {
@@ -265,16 +223,6 @@ function setScriptVersion() {
 }
 
 setScriptVersion();
-
-// Добавляем обработчик события для кнопки проверки обновлений
-document.getElementById("check-updates").addEventListener("click", () => checkForUpdates(false));
-
-// Автоматическая проверка обновлений каждые 12 часов
-setInterval(() => checkForUpdates(true), 12 * 60 * 60 * 1000);
-
-// Проверка обновлений при загрузке страницы
-checkForUpdates(true);
-
 
   document.body.appendChild(div);
 
@@ -845,3 +793,56 @@ function getCookie(name) {
 }
 
 let isCheckingForUpdates = false;
+
+function checkForUpdates(silent = false) {
+    if (isCheckingForUpdates) return;
+    isCheckingForUpdates = true;
+
+    const updateURL = "https://raw.githubusercontent.com/EdwardScorpio/pz-map/main/PBteam-map-2.0.user.js";
+    fetch(updateURL)
+        .then(response => response.text())
+        .then(data => {
+            const remoteVersion = data.match(/@version\s+(\S+)/);
+            const currentVersion = GM_info.script.version;
+            if (remoteVersion && compareVersions(remoteVersion[1], currentVersion) > 0) {
+                if (confirm("Доступна новая версия скрипта. Хотите обновить?")) {
+                    window.open(updateURL, "_blank");
+                }
+            } else if (!silent) {
+                alert("У вас установлена последняя версия скрипта.");
+            }
+        })
+        .catch(error => console.error('Ошибка при проверке обновлений:', error))
+        .finally(() => {
+            isCheckingForUpdates = false;
+        });
+}
+
+function compareVersions(v1, v2) {
+    const parts1 = v1.split('.').map(Number);
+    const parts2 = v2.split('.').map(Number);
+    for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+        const part1 = parts1[i] || 0;
+        const part2 = parts2[i] || 0;
+        if (part1 > part2) return 1;
+        if (part1 < part2) return -1;
+    }
+    return 0;
+}
+
+function addUpdateCheckListener() {
+    const checkUpdatesButton = document.getElementById("check-updates");
+    if (checkUpdatesButton && !checkUpdatesButton.hasAttribute("data-listener-added")) {
+        checkUpdatesButton.addEventListener("click", () => checkForUpdates(false));
+        checkUpdatesButton.setAttribute("data-listener-added", "true");
+    }
+}
+
+// Вызовите эту функцию после создания кнопки в DOM
+addUpdateCheckListener();
+
+// Автоматическая проверка обновлений каждые 12 часов
+setInterval(() => checkForUpdates(true), 12 * 60 * 1000);
+
+// Проверка обновлений при загрузке страницы
+checkForUpdates(true);
