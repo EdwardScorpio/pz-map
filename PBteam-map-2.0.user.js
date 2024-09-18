@@ -26,7 +26,7 @@
 QERTYUIOP и FGHJKLZ : выбрать цвет
 +/- numpad: масштабирование миникарты (Так же можно масштабировать на клавиши "-" и "=" )
 0: Включить\Выключить Автовыбор цвета
-9: Проверить наличие обновлений (Так же, оно выполняется автоматически при загрузке страницы PixelZone)
+9: Проверить наличие обновлений (Так же, оно выполняется автоматически при загрузке страницы PixelZone, и в настройках)
 
 Мини-карта стартует скрытой. Чтобы она заработала - откройте её.
 
@@ -47,6 +47,14 @@ Number.prototype.between = function (a, b) {
 };
 
 function startup() {
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === '9') {
+    checkForUpdates(false);
+  }
+});
+
+setTimeout(addUpdateCheckListener, 0);
 
 addUpdateCheckListener();
 
@@ -831,18 +839,12 @@ function compareVersions(v1, v2) {
 }
 
 function addUpdateCheckListener() {
-    const checkUpdatesButton = document.getElementById("check-updates");
-    if (checkUpdatesButton && !checkUpdatesButton.hasAttribute("data-listener-added")) {
-        checkUpdatesButton.addEventListener("click", () => checkForUpdates(false));
-        checkUpdatesButton.setAttribute("data-listener-added", "true");
-    }
+  const checkUpdatesButton = document.getElementById('check-updates');
+  if (checkUpdatesButton) {
+    checkUpdatesButton.addEventListener('click', function() {
+      checkForUpdates(false);
+    });
+  } else {
+    console.error('Check Updates button not found');
+  }
 }
-
-// Вызовите эту функцию после создания кнопки в DOM
-addUpdateCheckListener();
-
-// Автоматическая проверка обновлений каждые 12 часов
-setInterval(() => checkForUpdates(true), 12 * 60 * 1000);
-
-// Проверка обновлений при загрузке страницы
-checkForUpdates(true);
