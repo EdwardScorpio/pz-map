@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         PixelZone 2x2 PBteam map
 // @namespace    http://tampermonkey.net/
-// @version      2.0.8
+// @version      2.0.10
 // @description  Overlay-like tool for pixelzone.io
 // @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio & MDOwlman
 // @match        https://pixelzone.io/*
 // @homepage     https://github.com/EdwardScorpio/pz-map/
 // @updateURL    https://raw.githubusercontent.com/EdwardScorpio/pz-map/main/PBteam-map-2.0.user.js
 // @downloadURL  https://raw.githubusercontent.com/EdwardScorpio/pz-map/main/PBteam-map-2.0.user.js
-// @grant        none
+// @grant        GM_info
 // @run-at       document-end
 // ==/UserScript==
 
@@ -24,7 +24,9 @@
 Клавиши:
 Пробел : Показать и скрыть карту. Это также перезагружает изображения шаблона после обновления.
 QERTYUIOP и FGHJKLZ : выбрать цвет
-+/- numpad: масштабирование миникарты
++/- numpad: масштабирование миникарты (Так же можно масштабировать на клавиши "-" и "=" )
+0: Включить\Выключить Автовыбор цвета
+9: Проверить наличие обновлений (Так же, оно выполняется автоматически при загрузке страницы PixelZone)
 
 Мини-карта стартует скрытой. Чтобы она заработала - откройте её.
 
@@ -192,14 +194,26 @@ input:checked + .slider:before {
       <span style='user-select: none; padding-right: 16px;'>Faction</span>
       <select style='outline:0;font-family:Nunito,sans-serif;border-radius:32px;'><option>PBteam</option></select>
       <br><br>
-      <span id="check-updates" style="cursor:pointer;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">Check Updates</span>
-      <br><br>
+<span id="check-updates" style="cursor:pointer;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">Check Updates</span>
+<br>
+<span id="script-version" style="font-size:0.9em;color:#888;">Version: </span>
+<br><br>
       <span id="settings-map-2" style="cursor:pointer;user-select:none;text-align:center;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">Go back</span><br><br>
     </div>
   </div>
 `;
 
 document.body.appendChild(div);
+
+function setScriptVersion() {
+  const versionSpan = document.getElementById('script-version');
+  if (versionSpan) {
+    versionSpan.textContent = 'Version: ' + GM_info.script.version;
+  }
+}
+
+setScriptVersion();
+
 
 // Функция для проверки обновлений
 function checkForUpdates(silent = false) {
