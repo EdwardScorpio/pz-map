@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PixelZone 2x2 PBteam map
 // @namespace    http://tampermonkey.net/
-// @version      2.1.1
+// @version      2.1.0
 // @description  Overlay-like tool for pixelzone.io
 // @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio & MDOwlman
 // @match        https://pixelzone.io/*
@@ -204,6 +204,37 @@ input:checked + .slider:before {
 `;
 
 document.body.appendChild(div);
+
+// Функция для проверки обновлений
+function checkForUpdates(silent = false) {
+    const updateURL = "https://raw.githubusercontent.com/EdwardScorpio/pz-map/main/PBteam-map-2.0.user.js";
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", updateURL, true);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            const remoteVersion = xhr.responseText.match(/@version\s+(\S+)/);
+            const currentVersion = GM_info.script.version;
+            if (remoteVersion && remoteVersion[1] > currentVersion) {
+                if (confirm("Доступна новая версия скрипта. Хотите обновить?")) {
+                    window.open(updateURL, "_blank");
+                }
+            } else if (!silent) {
+                alert("У вас установлена последняя версия скрипта.");
+            }
+        }
+    };
+    xhr.send();
+}
+
+// Добавляем обработчик события для кнопки проверки обновлений
+document.getElementById("check-updates").addEventListener("click", () => checkForUpdates(false));
+
+// Автоматическая проверка обновлений каждые 12 часов
+setInterval(() => checkForUpdates(true), 12 * 60 * 60 * 1000);
+
+// Проверка обновлений при загрузке страницы
+checkForUpdates(true);
+
 
 function setScriptVersion() {
   const versionSpan = document.getElementById('script-version');
