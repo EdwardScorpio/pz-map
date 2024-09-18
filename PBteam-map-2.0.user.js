@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         PixelZone 2x2 PBteam map
 // @namespace    http://tampermonkey.net/
-// @version      2.0.7.5
+// @version      2.0.8
 // @description  Overlay-like tool for pixelzone.io
 // @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio & MDOwlman
 // @match        https://pixelzone.io/*
-// @homepage     https://github.com/EdwardScorpio/pz/
+// @homepage     https://github.com/EdwardScorpio/pz-map/
 // @updateURL    https://raw.githubusercontent.com/EdwardScorpio/pz-map/main/PBteam-map-2.0.user.js
 // @downloadURL  https://raw.githubusercontent.com/EdwardScorpio/pz-map/main/PBteam-map-2.0.user.js
 // @grant        none
@@ -19,6 +19,7 @@
 Используйте плагин Tampermonkey, чтобы внедрить это в игру. Добавьте скрипт, вставьте код.
 
 Путь к изображениям должен быть прямым, например: https://image.com/img.png.
+Код для ссылок и координат находится на 450-ых строках.
 
 Клавиши:
 Пробел : Показать и скрыть карту. Это также перезагружает изображения шаблона после обновления.
@@ -97,27 +98,27 @@ function startup() {
   //Cachebreaker to force image refresh. Set it to eg. 1
   window.cachebreaker = "";
 
-  var div = document.createElement('div');
-  div.setAttribute('class', 'post block bc2');
+var div = document.createElement('div');
+div.setAttribute('class', 'post block bc2');
 
-  div.innerHTML = `
+div.innerHTML = `
   <style>
     #not_Used{display: none !important}
 
-    .switch {
+.switch {
       position: relative;
       display: inline-block;
       width: 45px;
       height: 20px;
     }
 
-    .switch input {
+.switch input {
       opacity: 0;
       width: 0;
       height: 0;
     }
 
-    .slider {
+.slider {
       position: absolute;
       cursor: pointer;
       top: 0;
@@ -129,7 +130,7 @@ function startup() {
       transition: .4s;
     }
 
-    .slider:before {
+.slider:before {
       position: absolute;
       content: "";
       height: 20px;
@@ -140,61 +141,99 @@ function startup() {
       transition: .4s;
     }
 
-    input:checked + .slider {
+input:checked + .slider {
       background-color: #2196F3;
     }
 
-    input:focus + .slider {
+input:focus + .slider {
       box-shadow: 0 0 1px #2196F3;
     }
 
-    input:checked + .slider:before {
+input:checked + .slider:before {
       -webkit-transform: translateX(26px);
       -ms-transform: translateX(26px);
       transform: translateX(26px);
     }
 
-    .slider.round {
+.slider.round {
       border-radius: 32px;
     }
 
-    .slider.round:before {
+.slider.round:before {
       border-radius: 50%;
     }
   </style>
 
-    <div id="minimapbg" style="background-color:rgba(0,0,0,0.5); border-radius:12px; position:absolute; right:6px; bottom:6px; z-index:1;">
-      <div class="posy unselectable" id="posyt" style="background-size:100%; color:#fff; text-align:center; line-height:32px; vertical-align:middle; width:auto; height:auto; padding:6px 8px;">
-        <div id="minimap-text" style="background:black;padding-left:5px;padding-right:5px;border-radius:8px;user-select:none;"></div>
-        <div id="minimap-title" style="line-height:15px;font-size:1.2em;user-select:none;padding:8px;">${vers}</div>
-        <div id="minimap-box" style="position: relative;width:390px;height:280px">
+<div id="minimapbg" style="background-color:rgba(0,0,0,0.5); border-radius:12px; position:absolute; right:6px; bottom:6px; z-index:1;">
+    <div class="posy unselectable" id="posyt" style="background-size:100%; color:#fff; text-align:center; line-height:32px; vertical-align:middle; width:auto; height:auto; padding:6px 8px;">
+      <div id="minimap-text" style="background:black;padding-left:5px;padding-right:5px;border-radius:8px;user-select:none;"></div>
+      <div id="minimap-title" style="line-height:15px;font-size:1.2em;user-select:none;padding:8px;">${vers}</div>
+      <div id="minimap-box" style="position: relative;width:390px;height:280px">
         <canvas id="minimap" style="width: 100%; height: 100%;z-index:1;position:absolute;top:0;left:0;"></canvas>
         <canvas id="minimap-board" style="width: 100%; height: 100%;z-index:2;position:absolute;top:0;left:0;"></canvas>
         <canvas id="minimap-cursor" style="width: 100%; height: 100%;z-index:3;position:absolute;top:0;left:0;"></canvas>
-        </div><div id="minimap-config" style="line-height:15px;"><br>
-        <span id="hide-map" style="cursor:pointer;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;margin-right:8px;">Hide
-        </span> <span id="settings-map" style="cursor:pointer;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;margin-right:32px;">Settings
-        </span> <span style='user-select: none;'>Zoom:</span> <span id="zoom-plus" style="cursor:pointer;font-weight:bold;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">&nbsp;+&nbsp;</span>
+      </div>
+      <div id="minimap-config" style="line-height:15px;"><br>
+        <span id="hide-map" style="cursor:pointer;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;margin-right:8px;">Hide</span>
+        <span id="settings-map" style="cursor:pointer;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;margin-right:32px;">Settings</span>
+        <span style='user-select: none;'>Zoom:</span>
+        <span id="zoom-plus" style="cursor:pointer;font-weight:bold;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">&nbsp;+&nbsp;</span>
         <span id="zoom-minus" style="cursor:pointer;font-weight:bold;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">&nbsp;-&nbsp;</span>
       </div>
-      </div>
-
-      <div id="minimap_settings" style="background-size:100%; width:250px; height:auto; text-align:center; display:none;">
-        <div id="minimap-title" style="line-height:15px;font-size:1.2em;user-select:none;padding:8px;">Settings</div>
-        <br>
-        <span style='user-select: none; padding-right: 16px;'>Auto-Color</span>
-        <label class="switch">
-          <input id='autoColor' type="checkbox">
-          <span class="slider round"></span>
-        </label>
-        <br><br>
-        <span style='user-select: none; padding-right: 16px;'>Faction</span>
-        <select style='outline:0;font-family:Nunito,sans-serif;border-radius:32px;'><option>PBteam</option></select>
-        <br><br>
-        <span id="settings-map-2" style="cursor:pointer;user-select:none;text-align:center;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">Go back</span><br><br>
-      </div>
     </div>
-    `;
+
+<div id="minimap_settings" style="background-size:100%; width:250px; height:auto; text-align:center; display:none;">
+      <div id="minimap-title" style="line-height:15px;font-size:1.2em;user-select:none;padding:8px;">Settings</div>
+      <br>
+      <span style='user-select: none; padding-right: 16px;'>Auto-Color</span>
+      <label class="switch">
+        <input id='autoColor' type="checkbox">
+        <span class="slider round"></span>
+      </label>
+      <br><br>
+      <span style='user-select: none; padding-right: 16px;'>Faction</span>
+      <select style='outline:0;font-family:Nunito,sans-serif;border-radius:32px;'><option>PBteam</option></select>
+      <br><br>
+      <span id="check-updates" style="cursor:pointer;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">Check Updates</span>
+      <br><br>
+      <span id="settings-map-2" style="cursor:pointer;user-select:none;text-align:center;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">Go back</span><br><br>
+    </div>
+  </div>
+`;
+
+document.body.appendChild(div);
+
+// Функция для проверки обновлений
+function checkForUpdates(silent = false) {
+    const updateURL = "https://raw.githubusercontent.com/EdwardScorpio/pz-map/main/PBteam-map-2.0.user.js";
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", updateURL, true);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            const remoteVersion = xhr.responseText.match(/@version\s+(\S+)/);
+            const currentVersion = GM_info.script.version;
+            if (remoteVersion && remoteVersion[1] > currentVersion) {
+                if (confirm("Доступна новая версия скрипта. Хотите обновить?")) {
+                    window.open(updateURL, "_blank");
+                }
+            } else if (!silent) {
+                alert("У вас установлена последняя версия скрипта.");
+            }
+        }
+    };
+    xhr.send();
+}
+
+// Добавляем обработчик события для кнопки проверки обновлений
+document.getElementById("check-updates").addEventListener("click", () => checkForUpdates(false));
+
+// Автоматическая проверка обновлений каждые 12 часов
+setInterval(() => checkForUpdates(true), 12 * 60 * 60 * 1000);
+
+// Проверка обновлений при загрузке страницы
+checkForUpdates(true);
+
+
   document.body.appendChild(div);
 
   minimap = document.getElementById("minimap");
