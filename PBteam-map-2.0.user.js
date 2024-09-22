@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         PixelZone 2x2 PBteam map
 // @namespace    http://tampermonkey.net/
-// @version      2.1.1
+// @version      2.1.2
 // @description  Overlay-like tool for pixelzone.io
 // @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio & MDOwlman
 // @match        https://pixelzone.io/*
 // @homepage     https://github.com/EdwardScorpio/pz-map/
 // @updateURL    https://raw.githubusercontent.com/EdwardScorpio/pz-map/main/PBteam-map-2.0.user.js
 // @downloadURL  https://raw.githubusercontent.com/EdwardScorpio/pz-map/main/PBteam-map-2.0.user.js
+// @icon         https://i.ibb.co/02t5CLn/bobr-s-siskami.png
 // @grant        GM_info
 // @run-at       document-end
 // ==/UserScript==
