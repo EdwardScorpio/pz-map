@@ -580,7 +580,7 @@ function loadTemplates() {
     if (zooming_in == false && zooming_out == false) {
       minimap_box.style.display = "none";
       minimap_text.style.display = "block";
-      minimap_text.innerHTML = "No templates here";
+      minimap_text.innerHTML = "Empty";
       minimap_text.style.cursor = "auto";
     }
   } else {
