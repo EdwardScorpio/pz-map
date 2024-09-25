@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         PixelZone 2x2 PBteam map
 // @namespace    http://tampermonkey.net/
-// @version      2.1.2
+// @version      2.1.3
 // @description  Overlay-like tool for pixelzone.io
 // @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio & MDOwlman
 // @match        https://pixelzone.io/*
@@ -450,7 +450,7 @@ function updateloop() {
     // Здесь мы напрямую определяем template_list, вместо загрузки из файла
     window.template_list = {
         "Map 1": {
-            name: "https://i.ibb.co/6BK9SWc/Pixel-Zone-2x2-map-cut.png",
+            name: "https://i.ibb.co/nmFThq0/401df166c253.png",
             x: -4096,
             y: -1473,
             width: 1113,
