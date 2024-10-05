@@ -453,8 +453,8 @@ function updateloop() {
             name: "https://i.ibb.co/C7hnWk4/0967428a3c43.png",
             x: -4096,
             y: -1473,
-            width: 1113,
-            height: 2177
+            width: 1571,
+            height: 2392
         },
         "Mqwieqwe": {
             name: "",
