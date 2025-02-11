@@ -1,14 +1,14 @@
 // ==UserScript==
-// @name         PixelZone 2x2 PBteam map
+// @name         Мини-карта PixelZone 2x2 PB Team Crew
 // @namespace    http://tampermonkey.net/
-// @version      2.1.10
+// @version      2.1.11
 // @description  Overlay-like tool for pixelzone.io
-// @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio & MDOwlman
+// @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio & MDOwlman, redesigned by MDOwlman
 // @match        https://pixelzone.io/*
 // @homepage     https://github.com/EdwardScorpio/pz-map/
 // @updateURL    https://raw.githubusercontent.com/EdwardScorpio/pz-map/main/PBteam-map-2.0.user.js
 // @downloadURL  https://raw.githubusercontent.com/EdwardScorpio/pz-map/main/PBteam-map-2.0.user.js
-// @icon         https://i.ibb.co/02t5CLn/bobr-s-siskami.png
+// @icon         https://i.ibb.co/C5S0R1bV/Square-Logo2x2.png
 // @grant        GM_info
 // @run-at       document-end
 // ==/UserScript==
@@ -21,7 +21,6 @@
 
 Путь к изображениям должен быть прямым, например: https://image.com/img.png.
 Код для ссылок и координат находится на 450-ых строках.
-
 Клавиши:
 Пробел : Показать и скрыть карту. Это также перезагружает изображения шаблона после обновления.
 QERTYUIOP и FGHJKLZ : выбрать цвет
@@ -30,16 +29,13 @@ QERTYUIOP и FGHJKLZ : выбрать цвет
 9: Проверить наличие обновлений (Так же, оно выполняется автоматически при загрузке страницы PixelZone, и в настройках)
 
 Мини-карта стартует скрытой. Чтобы она заработала - откройте её.
-
 */
-
-var vers = "Pixelzone Minimap";
+var vers = "=2X2 Мини-карта=";
 var range = 6; //margin for showing the map window
-
 var x, y, zoomlevel, zooming_out, zooming_in, zoom_time, x_window, y_window, coorDOM, gameWindow;
 var toggle_show, toggle_follow, counter, image_list, needed_templates, mousemoved;
 var minimap, minimap_board, minimap_cursor, minimap_box, minimap_text;
-var ctx_minimap, ctx_minimap_board, ctx_minimap_cursor;
+var ctx_minimap, ctx_minimap_board, ctx_minimap_cursor,setFactionTemplates,errorDetectionEnabled;
 
 Number.prototype.between = function (a, b) {
   var min = Math.min.apply(Math, [a, b]);
@@ -48,7 +44,6 @@ Number.prototype.between = function (a, b) {
 };
 
 function startup() {
-
 document.addEventListener('keydown', function(e) {
   if (e.key === '9') {
     checkForUpdates(false);
@@ -56,7 +51,6 @@ document.addEventListener('keydown', function(e) {
 });
 
 setTimeout(addUpdateCheckListener, 0);
-
 addUpdateCheckListener();
 
 function addUpdateCheckListener() {
@@ -66,15 +60,23 @@ function addUpdateCheckListener() {
         checkUpdatesButton.setAttribute("data-listener-added", "true");
     }
 }
+ window.addEventListener('keydown', function(e) {       if (e.key === '1') {
+     errorDetectionEnabled = false;
+     var diff = document.getElementById("diffCanvas");
+     if (diff) diff.style.display = "none";
+     console.log("Normal mode enabled (error detection disabled).")
+     ;}
 
+     else if (e.key === '2') {
+         errorDetectionEnabled = true;
+         setupErrorDetectionCanvases();
+         console.log("Error detection mode enabled."); }
+                                                });
   window.timerDiv = undefined;
-
   var i, t = getCookie("baseTemplateUrl");
-
   var leftContainer, usersDiv, coordDiv;
 
   console.log("Try: listTemplates() and keys space, QERTYUIOP FGHJKLZ");
-
   gameWindow = document.getElementsByTagName("canvas")[0];
 
   leftContainer = document.getElementsByClassName("_left_16o3w_27")[0];
@@ -84,7 +86,7 @@ function addUpdateCheckListener() {
 
   var pixelCounter = document.createElement('div');
   pixelCounter.className = '_flex_16o3w_1 _row_16o3w_8 _center_16o3w_14 _background_xd2n8_16 _padding_xd2n8_39 _margin_xd2n8_43 _fit-content_xd2n8_34 _note_9gyhg_1';
-  pixelCounter.innerHTML = `<svg fill="none" stroke-width="2" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" height="1em" width="1em" style="width: 1.65em; height: 1.65em; overflow: visible; color: currentcolor; margin: 0; margin-block: 0; margin-left: 5px; margin-bottom: 5px;"><path xmlns="http://www.w3.org/2000/svg" d="M6.56 25.48c-0.32 0-0.64-0.2-0.76-0.52l-1.8-4.28-2.84 1.12c-0.24 0.12-0.56 0.080-0.8-0.080s-0.36-0.4-0.36-0.68v-13.68c0-0.32 0.2-0.64 0.52-0.76s0.68-0.040 0.92 0.2l9.68 9.68c0.2 0.2 0.28 0.48 0.24 0.76s-0.24 0.52-0.48 0.6l-2.8 1.2 1.76 4.28c0.16 0.44-0.040 0.92-0.44 1.080l-2.48 1.040c-0.16 0.040-0.24 0.040-0.36 0.040zM4.48 18.76c0.32 0 0.64 0.2 0.76 0.52l1.76 4.28 0.92-0.4-1.76-4.28c-0.16-0.44 0.040-0.92 0.44-1.080l2.44-1.040-7.36-7.36v10.44l2.48-1c0.080-0.040 0.2-0.080 0.32-0.080z"/></svg>
+  pixelCounter.innerHTML = `<svg fill="none" stroke-width="2" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" height="1em" width="1em" style="width: 1.65em; height: 1.65em; overflow: visible; color: currentcolor; margin: 0; margin-block: 0; margin-left: 4px; margin-bottom: 4px;"><path xmlns="http://www.w3.org/2000/svg" d="M6.56 25.48c-0.32 0-0.64-0.2-0.76-0.52l-1.8-4.28-2.84 1.12c-0.24 0.12-0.56 0.080-0.8-0.080s-0.36-0.4-0.36-0.68v-13.68c0-0.32 0.2-0.64 0.52-0.76s0.68-0.040 0.92 0.2l9.68 9.68c0.2 0.2 0.28 0.48 0.24 0.76s-0.24 0.52-0.48 0.6l-2.8 1.2 1.76 4.28c0.16 0.44-0.040 0.92-0.44 1.080l-2.48 1.040c-0.16 0.040-0.24 0.040-0.36 0.040zM4.48 18.76c0.32 0 0.64 0.2 0.76 0.52l1.76 4.28 0.92-0.4-1.76-4.28c-0.16-0.44 0.040-0.92 0.44-1.080l2.44-1.040-7.36-7.36v10.44l2.48-1c0.080-0.040 0.2-0.080 0.32-0.080z"/></svg>
   <span id="pixelCounter" class="notranslate">0</span>`;
   leftContainer.appendChild(pixelCounter);
 
@@ -119,18 +121,33 @@ function addUpdateCheckListener() {
   //Cachebreaker to force image refresh. Set it to eg. 1
   window.cachebreaker = "";
 
+    window.addEventListener('keydown', function(e) {
+  if (e.key === '1') {
+    // Режим нормальной работы (детектор ошибок выключен)
+    errorDetectionEnabled = false;
+    var diff = document.getElementById("diffCanvas");
+    if (diff) diff.style.display = "none";
+    console.log("Normal mode enabled (error detection disabled).");
+  } else if (e.key === '2') {
+    // Включаем режим error detection
+    errorDetectionEnabled = true;
+    setupErrorDetectionCanvases();
+    console.log("Error detection mode enabled.");
+  }
+});
+
 var div = document.createElement('div');
 div.setAttribute('class', 'post block bc2');
 
 div.innerHTML = `
-  <style>
-    #not_Used{display: none !important}
+<style>
+#not_Used{display: none !important}
 
 .switch {
       position: relative;
       display: inline-block;
-      width: 45px;
-      height: 20px;
+      width: 42px;
+      height: 18px;
     }
 
 .switch input {
@@ -142,32 +159,32 @@ div.innerHTML = `
 .slider {
       position: absolute;
       cursor: pointer;
-      top: 0;
-      left: 0;
+      top:-2px;
+      left: 4px;
       right: 0;
       bottom: 0;
-      background-color: #ccc;
-      -webkit-transition: .4s;
-      transition: .4s;
+      background-color: #2F4F4F;
+      -webkit-transition: .2s;
+      transition: .2s;
     }
 
 .slider:before {
       position: absolute;
-      content: "";
+      content: "//";
       height: 20px;
-      width: 20px;
-      left: 0px;
-      background-color: white;
+      width: 16px;
+      left: 0;
+      background-color: Silver;
       -webkit-transition: .4s;
       transition: .4s;
     }
 
 input:checked + .slider {
-      background-color: #2196F3;
+      background-color:Lime;
     }
 
 input:focus + .slider {
-      box-shadow: 0 0 1px #2196F3;
+      box-shadow: 0 0 0 #Lime;
     }
 
 input:checked + .slider:before {
@@ -177,47 +194,50 @@ input:checked + .slider:before {
     }
 
 .slider.round {
-      border-radius: 32px;
+      border-radius: 8px 8px 4px 4px;
     }
 
 .slider.round:before {
-      border-radius: 50%;
+      border-radius: 16%;
     }
   </style>
 
-<div id="minimapbg" style="background-color:rgba(0,0,0,0.5); border-radius:12px; position:absolute; right:6px; bottom:6px; z-index:1;">
-    <div class="posy unselectable" id="posyt" style="background-size:100%; color:#fff; text-align:center; line-height:32px; vertical-align:middle; width:auto; height:auto; padding:6px 8px;">
-      <div id="minimap-text" style="background:black;padding-left:5px;padding-right:5px;border-radius:8px;user-select:none;"></div>
-      <div id="minimap-title" style="line-height:15px;font-size:1.2em;user-select:none;padding:8px;">${vers}</div>
-      <div id="minimap-box" style="position: relative;width:390px;height:280px">
+<div id="minimapbg" style="background-color:rgba(202,202,202,80%); border-radius:30px 30px 0 0px; position:absolute; right:6px; bottom:6px; z-index:1;">
+    <div class="posy unselectable" id="posyt" style="background-size:100%; color:#fff; text-align:center; line-height:24px; vertical-align:middle; width:auto; height:auto; padding:6px 6px;">
+      <div id="minimap-text" style="background:DimGray;padding-left:2px;padding-right:2px;border-radius:20px 20px 0 0 ;user-select:none;">=2x2 Мини-Карта=</div>
+      <div id="minimap-title" style="line-height:16px;font-size:1em;background:Black;Border-radius:40px 40px 0 0;user-select:none;padding:4px;">${vers}</div>
+      <div id="minimap-box" style="position: sticky;width:390px;height:280px">
         <canvas id="minimap" style="width: 100%; height: 100%;z-index:1;position:absolute;top:0;left:0;"></canvas>
         <canvas id="minimap-board" style="width: 100%; height: 100%;z-index:2;position:absolute;top:0;left:0;"></canvas>
         <canvas id="minimap-cursor" style="width: 100%; height: 100%;z-index:3;position:absolute;top:0;left:0;"></canvas>
       </div>
-<div id="minimap-config" style="line-height:15px;"><br>
-  <span id="hide-map" style="cursor:pointer;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;margin-right:8px;">Hide</span>
-  <span id="settings-map" style="cursor:pointer;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;margin-right:32px;">Settings</span>
-  <span style='user-select: none;'>Zoom:</span>
-  <span id="zoom-plus" style="cursor:pointer;font-weight:bold;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">&nbsp;+&nbsp;</span>
-  <span id="zoom-minus" style="cursor:pointer;font-weight:bold;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">&nbsp;-&nbsp;</span>
-  <span style='user-select: none; margin-left: 16px;'>Auto-Color</span>
-  <label class="switch" style="vertical-align: middle;">
+<div id="minimap-config" style="line-height:12px;"><br>
+  <span id="hide-map" style="cursor:pointer;user-select:none;background:#1164B4;padding-left:2px;padding-right:2px;border-radius:12px 0 0 12px;margin-right:2px;">Скрыть</span>
+  <span id="settings-map" style="cursor:pointer;user-select:none;background:Teal;padding-left:2px;padding-right:4px;border-radius:0 12px 12px 0;margin-right:2px;">Настройки</span>
+  <span style='user-select: none;background:Purple;border-radius:6px;padding-left:4px;padding-right:4px'>Зум</span>
+  <span id="zoom-plus" style="cursor:pointer;font-weight:bold;user-select:none;background:Crimson;padding-left:0;padding-right:0;border-radius:12px 12px 2px 2px;">&nbsp;+&nbsp;</span>
+  <span id="zoom-minus" style="cursor:pointer;font-weight:bold;user-select:none;background:Blue;padding-left:0;padding-right:0;border-radius:4px 4px 12px 12px;">&nbsp;-&nbsp;</span>
+  <span style='user-select: none;background:Green;margin-left:2px;padding-left:4px;padding-right:4px;border-radius:12px;'>Aвто-Цвет</span>
+  <label class="switch" style="horizontal-align: middle;">
     <input id='autoColor' type="checkbox">
     <span class="slider round"></span>
   </label>
 </div>
     </div>
 
-<div id="minimap_settings" style="background-size:100%; width:250px; height:auto; text-align:center; display:none;">
-      <div id="minimap-title" style="line-height:15px;font-size:1.2em;user-select:none;padding:8px;">Settings</div>
-      <span style='user-select: none; padding-right: 16px;'>Faction</span>
-      <select style='outline:0;font-family:Nunito,sans-serif;border-radius:32px;'><option>PBteam</option></select>
+<div id="minimap_settings" style="background-size:100%; width:auto; height:auto; text-align:center; display:none;">
+      <div id="minimap-title" style="line-height:16px;font-size:1em;user-select:none;padding:4px;background:Teal;border-radius:20px 20px 0 0">Настройки</div>
+  <span style='user-select: none; padding:2px;Background:DarkGrey;border-radius:8px'>Режим</span>
+  <select id="factionSelect" style='outline:0;font-family:Nunito,sans-serif;border-radius:16px;'>
+    <option value="PBteam">PBteam</option>
+    <option value="NewFaction">NewFaction</option>
+  </select>
       <br><br>
-<span id="check-updates" style="cursor:pointer;user-select:none;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">Check Updates</span>
+<span id="check-updates" style="cursor:pointer;user-select:none;background:#01796F;padding-left:4px;padding-right:4px;border-radius:8px;">Обновления</span>
 <br>
-<span id="script-version" style="font-size:0.9em;color:#888;">Version: </span>
+<span id="script-version" style="font-size:0.9em;color:#0fffff;background:#01796F;padding-left:4px;padding-right:4px;border-radius:8px;"> Версия: </span>
 <br><br>
-      <span id="settings-map-2" style="cursor:pointer;user-select:none;text-align:center;background:black;padding-left:5px;padding-right:5px;border-radius:8px;">Go back</span><br><br>
+      <span id="settings-map-2" style="cursor:pointer;user-select:none;text-align:center;background:#003153;padding-left:4px;padding-right:4px;border-radius:8px;">Вернуться</span><br><br>
     </div>
   </div>
 `;
@@ -227,11 +247,9 @@ document.body.appendChild(div);
 function setScriptVersion() {
   const versionSpan = document.getElementById('script-version');
   if (versionSpan) {
-    versionSpan.textContent = 'Version: ' + GM_info.script.version;
+    versionSpan.textContent = 'Версия:2.1.11' + GM_info.script.version;
   }
 }
-
-setScriptVersion();
 
   document.body.appendChild(div);
 
@@ -464,11 +482,11 @@ function updateloop() {
             height: 860
         },
         "new_art_3": {
-            name: "",
-            x: -4066,
-            y: -1242,
-            width: 250,
-            height: 230
+name: "https://i.ibb.co/XkrDHVQp/dithered-image-1.png",
+            x: -4000,
+            y: -4000,
+            width: 800,
+            height: 347
         },
         "new_art_4": {
             name: "",
@@ -503,7 +521,7 @@ function toggleShow(newValue) {
     loadTemplates();
   } else {
     minimap_box.style.display = "none";
-    minimap_text.innerHTML = "Show Minimap";
+    minimap_text.innerHTML = "Открыть";
     minimap_text.style.display = "block";
     minimap_text.style.cursor = "pointer";
     document.getElementById("minimap-config").style.display = "none";
@@ -560,7 +578,7 @@ function loadTemplates() {
 
     needed_templates.push(item);
   })
-/*
+
   for (var i = 0; i < keys.length; i++) {
     var template = keys[i];
 
@@ -575,12 +593,13 @@ function loadTemplates() {
     if (!y_window.between(temp_y - range, temp_yb + range)) continue;
 
     needed_templates.push(template);
-  }*/
+  }
+
   if (needed_templates.length == 0) {
     if (zooming_in == false && zooming_out == false) {
       minimap_box.style.display = "none";
       minimap_text.style.display = "block";
-      minimap_text.innerHTML = "Empty";
+      minimap_text.innerHTML = "Пусто. Здесь трафаретов нет";
       minimap_text.style.cursor = "auto";
     }
   } else {
@@ -653,7 +672,7 @@ function drawBoard() {
     ctx_minimap_board.moveTo(xoff_m, x + yoff_m);
     ctx_minimap_board.lineTo(bw + xoff_m, x + yoff_m);
   }
-  ctx_minimap_board.strokeStyle = "black";
+  ctx_minimap_board.strokeStyle = "Gray";
   ctx_minimap_board.stroke();
 }
 
@@ -688,6 +707,153 @@ function getCenter() {
 
   loadTemplates();
 }
+
+setInterval(function() {
+  if (errorDetectionEnabled) {
+    processImages();
+    document.getElementById("diffCanvas").style.display = "block";
+  }
+}, 2000);
+
+if (document.getElementById("factionSelect") && document.getElementById("factionSelect").value === "NewFaction") {
+  errorDetectionEnabled = true;
+  setupErrorDetectionCanvases();
+} else {
+  errorDetectionEnabled = false;
+  var diff = document.getElementById("diffCanvas");
+  if (diff) diff.style.display = "none";
+}
+
+function setupErrorDetectionCanvases() {
+  // Получаем размеры мини-карты (убедитесь, что мини-карта уже создана, иначе вызовите эту функцию после инициализации мини-карты)
+  var mapWidth = minimap.offsetWidth;
+  var mapHeight = minimap.offsetHeight;
+  var refCanvas = document.getElementById("referenceCanvas");
+  if (!refCanvas) {
+    refCanvas = document.createElement("canvas");
+    refCanvas.id = "referenceCanvas";
+    refCanvas.style.display = "none";
+    document.body.appendChild(refCanvas);
+  }
+  refCanvas.width = mapWidth;
+  refCanvas.height = mapHeight;
+  // Создаем или обновляем currentCanvas
+  var currCanvas = document.getElementById("currentCanvas");
+  if (!currCanvas) {
+    currCanvas = document.createElement("canvas");
+    currCanvas.id = "currentCanvas";
+    currCanvas.style.display = "none";
+    document.body.appendChild(currCanvas);
+  }
+  currCanvas.width = mapWidth;
+  currCanvas.height = mapHeight;
+  // Создаем или обновляем diffCanvas
+  var diffCanvas = document.getElementById("diffCanvas");
+  if (!diffCanvas) {
+    diffCanvas = document.createElement("canvas");
+    diffCanvas.id = "diffCanvas";
+    diffCanvas.style.position = "absolute";
+    diffCanvas.style.pointerEvents = "none";
+    diffCanvas.style.zIndex = "4";
+    diffCanvas.style.display = "none"; // по умолчанию скрыт
+    var mBox = document.getElementById("minimap-box");
+    if (mBox) {
+      mBox.appendChild(diffCanvas);
+    } else {
+      document.body.appendChild(diffCanvas);
+    }
+  }
+  diffCanvas.width = mapWidth;
+  diffCanvas.height = mapHeight;
+  // Загружаем эталонное изображение шаблона PBteam (этот URL используется как эталон)
+  var referenceImg = new Image();
+  referenceImg.crossOrigin = "Anonymous";
+  referenceImg.src = 'https://i.ibb.co/8yYQ5d5/452cfb16aaca.png';
+  referenceImg.onload = function() {
+      var refCtx = refCanvas.getContext("2d");
+      refCtx.drawImage(referenceImg, 0, 0, refCanvas.width, refCanvas.height);
+  };
+}
+
+// Функция, которая обновляет текущее изображение мини-карты и выполняет сравнение с эталоном
+function processErrorDetection() {
+  if (!errorDetectionEnabled) return;
+  // Устанавливаем размеры currentCanvas в соответствии с мини-картой
+  var mapWidth = minimap.offsetWidth;
+  var mapHeight = minimap.offsetHeight;
+  var currCanvas = document.getElementById("currentCanvas");
+  currCanvas.width = mapWidth;
+  currCanvas.height = mapHeight;
+  // Копируем изображение мини-карты в currentCanvas
+  var currCtx = currCanvas.getContext("2d");
+  currCtx.clearRect(0, 0, currCanvas.width, currCanvas.height);
+  currCtx.drawImage(minimap, 0, 0, currCanvas.width, currCanvas.height);
+  // Вызываем функцию сравнения изображений (diff)
+  processImages();
+  // Отображаем diffCanvas, чтобы видеть результат сравнения
+  var diffCanvas = document.getElementById("diffCanvas");
+  if (diffCanvas) diffCanvas.style.display = "block";
+}
+
+// Функция сравнения изображений, которая берёт динамические размеры canvas
+function processImages() {
+  var refCanvas = document.getElementById("referenceCanvas");
+  var currCanvas = document.getElementById("currentCanvas");
+  var diffCanvas = document.getElementById("diffCanvas");
+  if (refCanvas && currCanvas && diffCanvas) {
+    var refCtx = refCanvas.getContext("2d");
+    var currCtx = currCanvas.getContext("2d");
+    var diffCtx = diffCanvas.getContext("2d");
+    var refData = refCtx.getImageData(0, 0, refCanvas.width, refCanvas.height);
+    var currData = currCtx.getImageData(0, 0, currCanvas.width, currCanvas.height);
+    var diffData = diffCtx.createImageData(diffCanvas.width, diffCanvas.height);
+    var threshold = 50; // порог чувствительности
+    for (let i = 0; i < refData.data.length; i += 4) {
+      var rDiff = Math.abs(refData.data[i] - currData.data[i]);
+      var gDiff = Math.abs(refData.data[i+1] - currData.data[i+1]);
+      var bDiff = Math.abs(refData.data[i+2] - currData.data[i+2]);
+      var diff = (rDiff + gDiff + bDiff) / 3;
+      if (diff > threshold) {
+        // Подсвечиваем красным пиксели, где разница больше порога
+        diffData.data[i] = 255;
+        diffData.data[i+1] = 0;
+        diffData.data[i+2] = 0;
+        diffData.data[i+3] = 255;
+      } else {
+        // Иначе оставляем пиксель без изменений (или можно наложить серую маску, если нужно)
+        // Например, чтобы правильные пиксели отображались с серой маской:
+        diffData.data[i] = currData.data[i] * 0.5 + 128;
+        diffData.data[i+1] = currData.data[i+1] * 0.5 + 128;
+        diffData.data[i+2] = currData.data[i+2] * 0.5 + 128;
+        diffData.data[i+3] = currData.data[i+3];
+      }
+    }
+    diffCtx.putImageData(diffData, 0, 0);
+  }
+}
+
+// Обработчик клавиш для переключения режима error detection
+window.addEventListener('keydown', function(e) {
+  if (e.key === '1') {
+    // Нормальный режим: отключаем error detection
+    errorDetectionEnabled = false;
+    var diff = document.getElementById("diffCanvas");
+    if (diff) diff.style.display = "none";
+    console.log("Normal mode enabled (error detection disabled).");
+  } else if (e.key === '2') {
+    // Включаем режим error detection
+    errorDetectionEnabled = true;
+    setupErrorDetectionCanvases();
+    console.log("Error detection mode enabled.");
+  }
+});
+
+// Периодический вызов функции обновления diffCanvas (добавьте в конце функции startup)
+setInterval(function() {
+  if (errorDetectionEnabled) {
+    processErrorDetection();
+  }
+}, 2000);
 
 window.addEventListener('keydown', function (e) {
   switch (e.keyCode) {
@@ -738,7 +904,7 @@ window.addEventListener('keydown', function (e) {
       zooming_out = false;
       break;
     case 88: //x: hide more elements
-      /*var UIDiv = document.getElementById("upperCanvas").nextElementSibling;
+      var UIDiv = document.getElementById("upperCanvas").nextElementSibling;
       var menu = UIDiv.childNodes[4];
       var playercount = UIDiv.childNodes[3].childNodes[0];
       var coords = playercount.nextElementSibling;
@@ -748,7 +914,7 @@ window.addEventListener('keydown', function (e) {
         playercount.style.display = "none";
       } else {
         coords.style.display = "none";
-      }*/
+      }
       break;
  case 187: // клавиша "="
     zooming_in = true;
@@ -818,7 +984,7 @@ function checkForUpdates(silent = false) {
                     window.open(updateURL, "_blank");
                 }
             } else if (!silent) {
-                alert("У вас установлена последняя версия скрипта.");
+                alert("У вас установлена последняя версия скрипта. Обновлений нет. ДЕФ СОВЁНКА!");
             }
         })
         .catch(error => console.error('Ошибка при проверке обновлений:', error))
@@ -849,3 +1015,6 @@ function addUpdateCheckListener() {
     console.error('Check Updates button not found');
   }
 }
+
+// Функция сравнения пикселей эталонного изображения и текущего изображения мини-карты.
+// Если разница превышает порог (threshold), отличающийся пиксель в diffCanvas подсвечивается красным.
