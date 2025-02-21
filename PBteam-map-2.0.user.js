@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Мини-карта 3 для пиксельзон от команды 2x2 Pixel Battle Team Crew
 // @namespace    http://tampermonkey.net/
-// @version      2.1.11
+// @version      2.2.0
 // @description  Overlay-like tool for pixelzone.io
 // @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio & MDOwlman
 // @match        https://pixelzone.io/*
