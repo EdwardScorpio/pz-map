@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         Мини-карта 3 для пиксельзон от команды 2x2 Pixel Battle Team Crew
+// @name         Мини-карта 2x2 Pixel Battle Team Crew
 // @namespace    http://tampermonkey.net/
-// @version      2.2.0
+// @version      2.2.18
 // @description  Overlay-like tool for pixelzone.io
-// @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio & MDOwlman
+// @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio. 2x2 Designed by MDOwlman.
 // @match        https://pixelzone.io/*
 // @homepage     https://github.com/EdwardScorpio/pz-map/
 // @updateURL    https://raw.githubusercontent.com/EdwardScorpio/pz-map/main/PBteam-map-2.0.user.js
@@ -28,7 +28,8 @@ QERTYUIOP и FGHJKLZ : выбрать цвет
 0: Включить\Выключить Автовыбор цвета
 9: Проверить наличие обновлений (Так же, оно выполняется автоматически при загрузке страницы PixelZone, и в настройках)
 
-Мини-карта стартует скрытой. Чтобы она заработала - откройте её.*/
+Мини-карта стартует скрытой. Чтобы она заработала - откройте её.
+*/
 var vers = "=2X2 МИНИ-КАРТА=";
 var range = 16; //margin for showing the map window
 var x, y, zoomlevel, zooming_out, zooming_in, zoom_time, x_window, y_window, coorDOM, gameWindow;
@@ -78,10 +79,10 @@ pixelCounter.innerHTML = `
   <svg xmlns="http://www.w3.org/2000/svg
        width="1.2em" height="1.2em"
        viewBox="0 0 454 454"
-       fill="#ffffff"
-       stroke="White" stroke-width="4"
+       fill="#aaaaaa"
+       stroke="Whitw" stroke-width="4"
        stroke-linecap="round" stroke-linejoin="round"
-       style="margin: 2px;border-style:solid;border-width:2px;border-color:#004292">
+       style="margin: 2px; border-style:solid;border-width:2px">
     <g>
       <g>
         <path d="M228.062,154.507h-34.938v65.631h34.938c18.094,0,32.814-14.72,32.814-32.814 C260.877,169.23,246.156,154.507,228.062,154.507z"/>
@@ -129,7 +130,7 @@ var div = document.createElement('div');;
 div.setAttribute('class', 'post block bc2');
 
     div.innerHTML = `
-    <style>
+       <style>
     #not_Used{display:none !important}
     </style>
 -------Увидел этот текст? Проверь интернет и скорость подключения<br>
@@ -339,7 +340,7 @@ if (autoColorButton) {
       autoColorButton.textContent = "Aвто-цвет";
       autoColorButton.style.backgroundColor = "#33CA33"; // зелёный для включённого режима
       autoColorButton.style.color = "#ffffff";
-    } else {
+    }else{
       autoColorButton.textContent = "Авто-цвет";
       autoColorButton.style.backgroundColor = "#000000"; // красный для выключенного режима
       autoColorButton.style.color = "#ffffff";
@@ -347,7 +348,8 @@ if (autoColorButton) {
     console.log("Auto-Color is now " + (autoColorEnabled ? "enabled" : "disabled"));
   });
 }
-  setInterval(() => {
+
+    setInterval(() => {
     try {
       fetch('https://pixelzone.io/users/profile/me').then(body => body.json().then(data => {
         document.getElementById('pixelCounter').innerText = data.pixels;
@@ -389,7 +391,6 @@ function mymousemove(evt) {
     }
     mousemoved = 1;
   }
-
     document.getElementById("transparencySlider").addEventListener("input", function() {
   var value = this.value;
   // Изменяем прозрачность фона мини-карты
@@ -397,9 +398,7 @@ function mymousemove(evt) {
 });
 
  if (!autoColorEnabled) return;
-
-  var hoveringColor = window.board.getImageData(0,0,1, 1).data + '//';
-
+var hoveringColor = window.board.getImageData(195, 140, 1, 1).data + '';
   if (hoveringColor[3] === 0) return;
 
   switch (hoveringColor) {
@@ -706,15 +705,18 @@ if (document.getElementById("factionSelect") && document.getElementById("faction
   var diff = document.getElementById("diffCanvas");
   if (diff) diff.style.display = "none";
 }
+
 window.addEventListener('keydown', function (e) {
   switch (e.keyCode) {
     case 32: //space
       toggleShow();
-     if (toggle_show) {
+
+      if (toggle_show) {
         window.cachebreaker++;
         console.log(cachebreaker);
         updateloop();
       }
+
       mymousemove();
     break;
     case 81: clickColor(0); break;
@@ -789,12 +791,14 @@ case 48: // клавиша "0"
 
 function clickColor(c) {
   var pal = document.getElementsByClassName("_ratio_1owdq_1")[0].firstChild.firstChild;
+  //https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/MouseEvent
   var e = new MouseEvent("click", {
     clientX: 5, clientY: 5,
     bubbles: true
   });
   pal.childNodes[c].firstChild.dispatchEvent(e);
 }
+
 function setCookie(name, value) { //you can supply "minutes" as 3rd arg.
   var argv = setCookie.arguments;
   var argc = setCookie.arguments.length;
@@ -806,12 +810,15 @@ function setCookie(name, value) { //you can supply "minutes" as 3rd arg.
   document.cookie = name + "=" + value + expires + "; SameSite=Lax; Path=/";
 }
 window.setCookie = setCookie;
+
 function getCookie(name) {
   var value = "; " + document.cookie;
   var parts = value.split("; " + name + "=");
   if (parts.length == 2) return parts.pop().split(";").shift();
 }
+
 let isCheckingForUpdates = false;
+
 function checkForUpdates(silent = false) {
     if (isCheckingForUpdates) return;
     isCheckingForUpdates = true;
@@ -835,6 +842,7 @@ function checkForUpdates(silent = false) {
             isCheckingForUpdates = false;
         });
 }
+
 function compareVersions(v1, v2) {
     const parts1 = v1.split('.').map(Number);
     const parts2 = v2.split('.').map(Number);
@@ -846,16 +854,7 @@ function compareVersions(v1, v2) {
     }
     return 0;
 }
-document.addEventListener("keydown", function(event) {
-    if (event.code === "Space" && !event.target.closest('input, textarea')) {
-        event.preventDefault(); // Отключаем прокрутку
-    }
-});
-document.addEventListener("keyup", function(event) {
-    if (event.code === "Space") {
-        refreshMinimap(); // Пример вызова функции для обновления карты
-    }
-});
+
 function addUpdateCheckListener() {
   const checkUpdatesButton = document.getElementById('check-updates');
   if (checkUpdatesButton) {
