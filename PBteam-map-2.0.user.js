@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Мини-карта 2x2 Pixel Battle Team Crew
 // @namespace    http://tampermonkey.net/
-// @version      2.2.18
+// @version      2.2.18.2
 // @description  Overlay-like tool for pixelzone.io
 // @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio. 2x2 Designed by MDOwlman.
 // @match        https://pixelzone.io/*
@@ -471,11 +471,11 @@ function updateloop() {
     // Здесь мы напрямую определяем template_list, вместо загрузки из файла
     window.template_list = {
         "Map 1": {
-            name: "https://i.ibb.co/8yYQ5d5/452cfb16aaca.png",
+            name: "https://i.ibb.co/gbwYYX3J/image.png",
             x: -4096,
-            y: -1473,
-            width: 1571,
-            height: 2392
+            y: -1831,
+            width: 2349,
+            height: 3004
         },
         "Mqwieqwe": {
             name: "",
