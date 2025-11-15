@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Мини-карта 2x2 Pixel Battle Team Crew
 // @namespace    http://tampermonkey.net/
-// @version      2.3.0
+// @version      2.2.19.1
 // @description  Overlay-like tool for pixelzone.io
 // @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio. 2x2 Designed by MDOwlman.
 // @match        https://pixelzone.io/*
@@ -39,7 +39,7 @@ Number.prototype.between = function (a, b) {
   return this > min && this < max;
 };
 var autoColorEnabled = false;
-const MINIMAP_VERSION = "2.3.0";
+const MINIMAP_VERSION = "2.2.19.1";
 
 function startup() {
 document.addEventListener('keydown', function(e) {
@@ -375,7 +375,7 @@ div.setAttribute('class', 'post block bc2');
 </style>
   <p>
 <span id="check-updates" style="cursor:pointer;user-select:none;background:#01796F;padding-left:4px;padding-right:4px;border-radius:4px;">Обновления</span>
-<span id="versionLabel" style="font-size:0.95em;color:#0fffff;background:Blue;padding-left:4px;padding-right:4px;border-radius:8px;">Версия: 2.3.0</span>
+<span id="versionLabel" style="font-size:0.95em;color:#0fffff;background:Blue;padding-left:4px;padding-right:4px;border-radius:8px;">Версия: 2.2.19</span>
 <p>
 <span id="settings-map-2" style="cursor:pointer;user-select:none;text-align:center;background:#003153;padding-left:4px;padding-right:4px;border-radius:4px;">Вернуться</span>
     </div>
