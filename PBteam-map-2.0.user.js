@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Мини-карта 2x2 Pixel Battle Team Crew
 // @namespace    http://tampermonkey.net/
-// @version      2.2.19.1
+// @version      2.3.0.0
 // @description  Overlay-like tool for pixelzone.io
 // @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio. 2x2 Designed by MDOwlman.
 // @match        https://pixelzone.io/*
@@ -12,13 +12,9 @@
 // @grant        GM_info
 // @run-at       document-end
 // ==/UserScript==
-
 /* Based on https://github.com/Pinkfloydd/ArgentinaMap_PixelZone
-
 Инструкции
-
 Используйте плагин Tampermonkey, чтобы внедрить это в игру. Добавьте скрипт, вставьте код.
-
 Путь к изображениям должен быть прямым, например: https://image.com/img.png.
 Код для ссылок и координат находится на 450-ых строках.
 Клавиши:
@@ -35,7 +31,7 @@ var range = 16; //margin for showing the map window
 var x, y, zoomlevel, zooming_out, zooming_in, zoom_time, x_window, y_window, coorDOM, gameWindow;
 var toggle_show, toggle_follow, counter, image_list, needed_templates, mousemoved;
 var minimap, minimap_board, minimap_cursor, minimap_box, minimap_text;
-var ctx_minimap, ctx_minimap_board, ctx_minimap_cursor,setFactionTemplates,errorDetectionEnabled;
+var ctx_minimap, ctx_minimap_board, ctx_minimap_cursor,setFactionTemplates;
 
 Number.prototype.between = function (a, b) {
   var min = Math.min.apply(Math, [a, b]);
@@ -43,7 +39,7 @@ Number.prototype.between = function (a, b) {
   return this > min && this < max;
 };
 var autoColorEnabled = false;
-const MINIMAP_VERSION = "2.2.19";
+const MINIMAP_VERSION = "2.2.19.1";
 
 function startup() {
 document.addEventListener('keydown', function(e) {
@@ -51,9 +47,6 @@ document.addEventListener('keydown', function(e) {
     checkForUpdates(false);
   }
 });
-
-setTimeout(addUpdateCheckListener, 0);
-addUpdateCheckListener();
 
 function addUpdateCheckListener() {
     const checkUpdatesButton = document.getElementById("check-updates");
@@ -74,7 +67,6 @@ if (versionLabel) {
   gameWindow = document.getElementsByTagName("canvas")[0];
 
   leftContainer = document.getElementsByClassName("_left_16o3w_27")[0];
-
   usersDiv = leftContainer.childNodes[0];
   coordDiv = leftContainer.childNodes[1];
 
@@ -97,9 +89,28 @@ pixelCounter.innerHTML = `
   </svg>
   <span id="pixelCounter" class="notranslate">0</span>
 `;
-leftContainer.appendChild(pixelCounter);
+// --- Перенос счётчика пикселей в нижний правый угол (в стиле миникарты) ---
+pixelCounter.style.position = "fixed";
+pixelCounter.style.right = "5px";           // отступ справа
+pixelCounter.style.bottom = "5px";          // отступ снизу
+pixelCounter.style.zIndex = "99999";         // поверх всего
+pixelCounter.style.background = "rgba(25, 25, 25, 1)"; // почти как фон миникарты
+pixelCounter.style.border = "1px solid rgba(255, 255, 255, 1)";
+pixelCounter.style.borderRadius = "10px";    // плавное скругление углов
+pixelCounter.style.padding = "8px 14px";     // внутренний отступ
+pixelCounter.style.color = "#fffff";        // слегка серый текст, не режет глаз
+pixelCounter.style.fontWeight = "2000";       // средне-жирный шрифт
+pixelCounter.style.fontSize = "20px";
+pixelCounter.style.display = "flex";
+pixelCounter.style.alignItems = "center";
+pixelCounter.style.gap = "4px";              // отступ между иконкой и числом
+pixelCounter.style.boxShadow = "0 4px 12px rgba(0,0,0,0.3)";
+pixelCounter.style.transition = "all 0.3s ease"; // плавная анимация
+pixelCounter.style.pointerEvents = "none";   // чтобы не мешал кликам по игре
 
-leftContainer.appendChild(pixelCounter);
+document.body.appendChild(pixelCounter);
+
+
 
 
   //DOM element of the displayed X, Y
@@ -154,8 +165,7 @@ div.setAttribute('class', 'post block bc2');
 ------- eller så fungerar inte webbplatsen korrekt.
 -------(fi) Näetkö tämän tekstin? Tarkista internet-yhteytesi<br>
 ------- tai ehkä sivusto ei toimi kunnolla.
--------(kz) Осы жазуды көрдің бе? Интернетке қосылуды тексер<br>
--------немесе сайт дұрыс істемей жатқан шығар.⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+-------(kz) Осы жазуды көрдің бе? Интернетке қосылуды тексер<br>-------немесе сайт дұрыс істемей жатқан шығар.⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
                                        ⢀⣠⡶⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⠀⠀⠀⢀⣤⠶⠋⣼⠁⠀⠀⠀⣀⣠⣤⣤⡶⠆⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣿⠀⠀⢀⡴⠋⠁⠀⣸⣥⡤⠶⠛⠉⠉⢀⣴⡯⠤⠶⠚⢫⡝⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -187,29 +197,118 @@ div.setAttribute('class', 'post block bc2');
 ⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⠀⠀⠀⠀⠛⣿⣿⣿⣿⣿⣿⣷⣮⣿⡁⢸⣿⡇⠿⠋⠀⠀⣀⠀⢸⡇⠻⣄⣀⠀⠙⢁⣤⢖⡷⢋⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣄⣸⠃⠀⠀
 ⠀⠀⠀⠀⠀⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡽⠀⠀⠀⠀⠀⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢸⢻⡇⠀⠀⠀⡼⠃⠀⠀⠙⠳⠮⣭⣝⡛⠛⡿⠋⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣯⡀⠀⠀
 ⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠁⠀⠀⠀⠀⢰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣸⣸⡇⠀⢀⡾⠁⠀⠀⠀⠀⣀⣀⡀⢈⣙⣛⣛⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀
-<div id="minimapbg" style="background-color:rgba(202,202,202,100%); border-radius:25px 25px 0 0px; position:absolute;right:5px; bottom:0; z-index:1;border-style:solid;border-width:2px 2px 0 2px;border-color:black">
-    <div class="posy unselectable" id="posyt" style="background-size:100%;font-size:1.1em; color:#fff; text-align:center; line-height:20px; vertical-align:middle; width:auto; height:auto; padding:2px 2px 10px 2px;">
-      <div id="minimap-text" style="background:DimGray;padding-left:8px;padding-right:10px;padding-top:3px;padding-bottom:0;border-radius:20px 20px 0 0 ;user-select:none;"></div>
-      <div id="minimap-title" style="line-height:14px;font-size:1em;background:Black;Border-radius:20px 20px 0 0;user-select:none;padding:4px 4px 4px 4px;">=2X2 МИНИ-КАРТА=</div>
+
+<style>
+  #minimapbg {
+    background: linear-gradient(to bottom, #dfdfdf, #9f9f9f);
+    border-radius: 20px 20px 20px 20px;
+    border: 2px solid black;
+    box-shadow: inset 0 0 4px #666, 0 4px 10px rgba(0, 0, 0, 0.5);
+    padding: 4px;
+  }
+
+  #minimap-text,
+  #minimap-title {
+    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.5);
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.7);
+  }
+
+  #minimap-config,
+  #minimap_settings {
+    background: linear-gradient(to bottom, #dbdbdb, #b1b1b1);
+    border: 2px solid #777;
+    border-radius: 12px;
+    box-shadow: inset 0 0 6px #666, 0 2px 6px rgba(0, 0, 0, 0.4);
+    padding: 6px;
+  }
+   #minimap_settings button,
+  #minimap_settings span,
+  #minimap_settings select,
+  #minimap_settings input[type="range"] {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 0 3px rgba(255, 255, 255, 0.3);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+
+  #minimap_settings button:active,
+  #minimap_settings span:active,
+  #minimap_settings select:active,
+  #minimap_settings input[type="range"]:active {
+    transform: scale(0.97);
+    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.5);
+  }
+
+  #settings-title {
+    background: linear-gradient(to bottom, #333, #000);
+    color: white;
+    box-shadow: inset 0 0 3px #000;
+    text-shadow: 1px 1px 0 #000;
+    border-radius: 50px 50px 50px 50px;
+  }
+
+  #infoContent {
+    background: #eaeaea;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+    box-shadow: inset 0 0 4px #bbb;
+    color: #333;
+  }
+
+  #volumeSlider,
+  #transparencySlider {
+    background: linear-gradient(to right, #eee, #ccc);
+    box-shadow: inset 0 0 2px #999;
+  }
+
+  #volumeSlider::-webkit-slider-thumb,
+
+  #minimap-config span,
+  #autoColorButton,
+  #zoomDisplay {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 0 3px rgba(255, 255, 255, 0.3);
+    transition: transform 0.1s ease, box-shadow 0.2s ease;
+  }
+
+  #minimap-config span:active,
+  #autoColorButton:active {
+    transform: scale(0.96);
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.4);
+  }
+
+  #zoomDisplay {
+    background: linear-gradient(to bottom, #333, #111);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 0.8em;
+    text-align: center;
+  }
+</style>
+
+<!-- Подключение стандартной HTML-структуры карты без изменений -->
+<div id="minimapbg" style="background-color:rgba(202,202,202,100%); border-radius:10px 10px 10px 10px; position:absolute;right:5px; bottom:0; z-index:1;border-style:solid;border-width:2px 2px 2px 2px;border-color:black">
+    <div class="posy unselectable" id="posyt" style="background-size:100%;font-size:1.1em; color:#fff; text-align:center; line-height:18px; vertical-align:middle; width:auto; height:auto; padding:2px 2px 3px 2px;">
+      <div id="minimap-text" style="background:DimGray;padding-left:10px;padding-right:10px;padding-top:2px;padding-bottom:2px;border-radius:10px 10px 0 0 ;user-select:none;"></div>
+      <div id="minimap-title" style="line-height:17px;font-size:1.05em;background:Black;Border-radius:10px 10px 0 0;user-select:none;padding:6px 6px 4px 6px;">=2X2 МИНИ-КАРТА=</div>
       <div id="minimap-box" style="position:relative;width:390px;height:280px">
         <canvas id="minimap" style="width: 100%; height: 100%;z-index:1;position:absolute;top:0;left:0;"></canvas>
         <canvas id="minimap-board" style="width: 100%; height: 100%;z-index:2;position:absolute;top:0;left:0;"></canvas>
         <canvas id="minimap-cursor" style="width: 100%; height: 100%;z-index:3;position:absolute;top:0;left:0;"></canvas>
       </div>
-<div id="minimap-config" style="line-height:15px;"></p>
-  <span id="hide-map" style="cursor:pointer;user-select:none;font-size:0.95em;background:#1164B4;padding-left:4px;padding-right:4px;border-radius:8px 0 0 8px;margin-left:4px;margin-right:2px;border-style:solid;border-width:1px 2px 4px 2px;border-color:#004292">Скрыть</span>
-  <span id="settings-map" style="cursor:pointer;user-select:none;font-size:0.95em;background:Teal;padding-left:4px;padding-right:4px;border-radius:0 8px 8px 0;margin-right:4px;border-style:solid;border-width:1px 2px 4px 2px;border-color:#007070">Настройки</span>
+<div id="minimap-config" style="line-height:32px;border-style:solid;border-width:2px 2px 2px 2px;border-color:Gray;border-radius:5px 5px 10px 10px;background:#999999;padding:3px 1px 3px 1px;margin:3px 3px 1px 3px">
+  <span id="hide-map" style="cursor:pointer;user-select:none;font-size:0.95em;background:#1164B4;padding-left:4px;padding-right:4px;border-radius:8px 0 0 8px;margin-left:4px;margin-right:0px;border-style:solid;border-width:1px 2px 4px 2px;border-color:#004292">Скрыть</span>
+  <span id="settings-map" style="cursor:pointer;user-select:none;font-size:0.95em;background:Teal;padding-left:4px;padding-right:4px;border-radius:0 8px 8px 0;margin-right:2px;border-style:solid;border-width:1px 2px 4px 2px;border-color:#007070">Настройки</span>
   <span id="zoom-plus" style="cursor:pointer;font-weight:bold;font-size:0.95em;user-select:none;background:Crimson;padding-left:0;padding-right:0;border-corner-shape:bevel;border-radius:12px 12px 2px 2px;border-style:solid;border-width:1px 2px 4px 2px;border-color:#BA021A";margin-left:0>&nbsp;+&nbsp;</span>
+</span>
   <span id="zoom-minus" style="cursor:pointer;font-weight:bold;font-size:0.95em;user-select:none;background:Blue;padding-left:0;padding-right:0;border-corner-shape:bevel;border-radius:2px 2px 12px 12px;border-style:solid;border-width:1px 2px 4px 2px;border-color:#0000AA";margin-left:0>&nbsp;-&nbsp;</span>
   <span id="autoColorButton" style="cursor:pointer;font-weight:bold;font-size:0.95em; padding:0 6px 0 6px;border-radius:8px;background:black;margin-left:0;margin-right:2px;text-transform:none;border-style:solid;border-width:3px 3px 3px 3px;border-color:Slategray;transition: background-color 0.2s ease, color 0.8s ease;">Авто-цвет</button>
   </label>
 </div>
     </div>
-<div id="minimap_settings" style="background-size:100%;border-radius:30px 30px 0 0 width:auto; height:auto; text-align:center; display:none;padding: 4px 4px 0 4px">
-      <div id="settings-title" style="line-height:16px;font-size:0.95em;user-select:none;padding:4px 0 4px 0;background:Black;border-radius:50px 50px 0 0">Настройки Мини-Карты</div>
+<div id="minimap_settings" style="background-size:100%;border-radius:10px 10px 10px 10px; width:auto; height:auto; text-align:center; display:none;padding: 4px 4px 4px 4px;">
+      <div id="settings-title" style="line-height:16px;font-size:0.95em;user-select:none;padding:4px 0 4px 0;background:Black;border-radius:10px 10px 5px 5px">Настройки Мини-Карты</div>
       <p>
       </figure style="background:Black;border-radius:2px;">
-      <div id="infoButton" style="display:inline-block; background-color:black; color:white; padding:4px 4px; border:none; border-radius:4px; cursor:pointer; font-size:0.95em;">
+      <div id="infoButton" style="display:inline-block; background-color:black; color:white; padding:2px 4px 4px 2px;margin:4px 20px 4px 0px border:none; border-radius:4px; cursor:pointer; font-size:0.95em;">
   Информация
 </div>
 <div id="infoContent" style="display:none; margin-top:10px; padding:10px; background-color:#f1f1f1; border:1px solid #ccc; border-radius:4px; font-size:0.95em; color:#333;">
@@ -227,9 +326,23 @@ div.setAttribute('class', 'post block bc2');
   " alt="Фоновое изображение">
   </div>
   <p>
-      <span id="volumeLabel" style="font-size:0.9em; color:#222222;background-color:LimeGreen;padding:4px 2px 4px 2px;border-radius:2px">Звук:</span>
-<input type="range" id="volumeSlider" min="0" max="100" value="100" style="text-align:center; width:200px; height:8px; border-radius:5px; background: #ccc; appearance: none; outline: none;">
-
+    <span id="languageLabel" style="user-select: none; padding: 0 4px 0 4px;margin:20px 40px 20px 30px font-size:0.95em; background:DarkGrey; border-radius:4px;">
+    Язык&nbsp;
+  </span>
+  <select id="languageSelect" style="margin-left:6px; outline:0; font-family:Nunito,sans-serif; border-radius:5px;">
+    <option value="ru">🇷🇺 Русский</option>
+    <option value="en">🇬🇧 English</option>
+    <option value="es">🇪🇸 Español</option>
+    <option value="tr">🇹🇷 Türkçe</option>
+    <option value="fi">🇫🇮 Suomi</option>
+    <option value="fr">🇫🇷 Français</option>
+    <option value="pt">🇵🇹 Português</option>
+    <option value="sv">🇸🇪 Svenska</option>
+    <option value="kk">🇰🇿 Қазақша</option>
+  </select>
+  <p>
+      <span id="volumeLabel" style="font-size:0.9em; color:#AAAAAa;background-color:NAVY;padding:4px 2px 4px 2px;border-radius:4px">Звук:</span>
+<input type="range" id="volumeSlider" min="0" max="100" value="100" style="text-align:center; width:200px; height:4px; border-radius:5px;appearance: none; outline: none;">
 <style>
   /* Стиль для контейнера ползунка */
   #volumeSlider {
@@ -245,7 +358,7 @@ div.setAttribute('class', 'post block bc2');
   /* Стиль для бегунка ползунка */
   #volumeSlider::-webkit-slider-thumb {
     -webkit-appearance: none; /* Для Webkit-браузеров */
-    width: 10px;              /* Ширина бегунка */
+    width: 9px;              /* Ширина бегунка */
     height: 18px;             /* Высота бегунка */
     background:FireBrick;      /* Цвет бегунка */
     border-radius: 2px;       /* Круглый бегунок */
@@ -259,45 +372,7 @@ div.setAttribute('class', 'post block bc2');
     background:LightCoral;
     border-radius: 1px;
   }
-</style><p>
-  <span id="languageLabel" style="user-select: none; padding:0 4px; font-size:0.95em; background:DarkGrey; border-radius:4px;">
-    Язык&nbsp;
-  </span>
-  <select id="languageSelect" style="margin-left:6px; outline:0; font-family:Nunito,sans-serif; border-radius:5px;">
-    <option value="ru">🇷🇺 Русский</option>
-    <option value="en">🇬🇧 English</option>
-    <option value="es">🇪🇸 Español</option>
-    <option value="tr">🇹🇷 Türkçe</option>
-    <option value="fi">🇫🇮 Suomi</option>
-    <option value="fr">🇫🇷 Français</option>
-    <option value="pt">🇵🇹 Português</option>
-    <option value="sv">🇸🇪 Svenska</option>
-    <option value="kk">🇰🇿 Қазақша</option>
-  </select>
-<p>
- <style>
-  #transparencySlider {
-    -webkit-appearance: none;
-    width: 150px;
-    height: 18px;
-    background: #aaaaaa;
-    border-radius: 1px;
-    outline: none;
-  }
-  #transparencySlider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 10px;
-    height: 18px;
-    background: Steelblue;
-    border-radius: 2px;
-    cursor: pointer;
-    border: none;
-  }
 </style>
-<span id="transparencyLabel" style="font-size:0.9em; color:#222222; background-color:YellowGreen; padding:4px 2px 4px 2px; border-radius:2px;">
-  Прозрачность:
-</span>
-<input type="range" id="transparencySlider" min="0" max="100" value="100">
   <p>
 <span id="check-updates" style="cursor:pointer;user-select:none;background:#01796F;padding-left:4px;padding-right:4px;border-radius:4px;">Обновления</span>
 <span id="versionLabel" style="font-size:0.95em;color:#0fffff;background:Blue;padding-left:4px;padding-right:4px;border-radius:8px;">Версия: 2.2.19</span>
@@ -309,10 +384,10 @@ div.setAttribute('class', 'post block bc2');
 
 document.body.appendChild(div);
 
-    const savedLang = localStorage.getItem("minimapLang") || "ru";
+    const Lang = localStorage.getItem("minimapLang") || "ru";
 const languageSelect = document.getElementById("languageSelect");
 if (languageSelect) {
-  languageSelect.value = savedLang;
+  languageSelect.value = Lang;
   languageSelect.addEventListener("change", () => {
     const lang = languageSelect.value;
     localStorage.setItem("minimapLang", lang);
@@ -320,6 +395,7 @@ if (languageSelect) {
       const infoEl = document.getElementById("infoContent");
   if (infoEl && texts.infoContent && texts.infoContent[lang]) {
     infoEl.innerHTML = texts.infoContent[lang];
+     const infoButton = document.getElementById('infoButton')
   }
       const infoTextEl = document.getElementById("infoText");
 if (infoTextEl && texts.infoContent && texts.infoContent[lang]) {
@@ -328,22 +404,11 @@ if (infoTextEl && texts.infoContent && texts.infoContent[lang]) {
 if (versionEl && texts.version && texts.version[lang]) {
   versionEl.textContent = texts.version[lang] + ": " + MINIMAP_VERSION;
 }
-   vers = texts.versionTitle[savedLang] || "=2X2 МИНИ-КАРТА=";
+   vers = texts.versionTitle[lang] || "=2X2 МИНИ-КАРТА=";
 const title = document.getElementById("minimap-title");
 if (title) title.textContent = vers;
 }
   });
-}
- document.getElementById("transparencySlider").addEventListener("input", function() {
-  var value = this.value;
-  // Изменяем прозрачность фона мини-карты
-  document.getElementById("minimapbg").style.backgroundColor = "rgba(202,202,202," + (value / 100) + ")";
-});
-function setScriptVersion() {
-  const versionSpan = document.getElementById('script-version');
-  if (versionSpan) {
-    versionSpan.textContent = + GM_info.script.version;
-  }
 }
 const volSlider = document.getElementById("volumeSlider");
 const savedVol = parseInt(localStorage.getItem("minimapVolume") || "100", 10);
@@ -379,6 +444,7 @@ if (volSlider) {
   minimap_box = document.getElementById("minimap-box");
   minimap_text = document.getElementById("minimap-text");
 
+
   //No Antialiasing when scaling!
   ctx_minimap.mozImageSmoothingEnabled = false;
   ctx_minimap.webkitImageSmoothingEnabled = false;
@@ -389,10 +455,8 @@ if (volSlider) {
   document.getElementsByClassName("_pointer-children_xd2n8_73")[0].style = "max-height:1px";
 
   toggleShow(toggle_show);
-
   drawBoard();
   drawCursor();
-
   document.getElementsByClassName("_ratio_1owdq_1")[0].parentElement.style = "position:absolute;left:158px;zoom:0.66";
 
   var pal = document.getElementsByClassName("_ratio_1owdq_1")[0].firstChild.firstChild;
@@ -433,6 +497,7 @@ document.getElementById("hide-map").onclick = function () {
   audioEls.zoomIn.play();
     zoomIn();
   }, false);
+
 const zoomMinus = document.getElementById("zoom-minus");
 if (zoomMinus) {
   zoomMinus.addEventListener('mousedown', function (e) {
@@ -444,6 +509,20 @@ if (zoomMinus) {
   }, false);
   zoomMinus.addEventListener('mouseup', function () {
     zooming_out = false;
+  }, false);
+}
+    const zoomPlus = document.getElementById("zoom-plus");
+if (zoomPlus) {
+  zoomPlus.addEventListener('mousedown', function (e) {
+    e.preventDefault();
+    zooming_in = true;
+    zooming_out = false;
+    audioEls.zoomIn.currentTime = 0;
+    audioEls.zoomIn.play();
+    zoomIn();
+  }, false);
+  zoomPlus.addEventListener('mouseup', function () {
+    zooming_in = false;
   }, false);
 }
 
@@ -465,8 +544,8 @@ if (zoomMinus) {
     }
   }, 20);
 setTimeout(() => {
-  const savedLang = localStorage.getItem("minimapLang") || "ru";
-  updateLanguage(savedLang);
+  const Lang = localStorage.getItem("minimapLang") || "ru";
+  updateLanguage(Lang);
 }, 100);
 document.getElementById('infoButton').addEventListener('click', function(){
    audioEls.info.currentTime = 0;
@@ -487,7 +566,7 @@ autoColorButton.addEventListener("click", function() {
   else                  audioEls.autoOff.currentTime = 0, audioEls.autoOff.play();
 
   // 3) меняем фон (как было)
-  autoColorButton.style.backgroundColor = autoColorEnabled ? "#33CA33" : "#000000";
+  autoColorButton.style.backgroundColor = autoColorEnabled ? "#118411" : "#000000";
   autoColorButton.style.color = "#ffffff";
 
   // 4) подхватываем язык (с учётом возможного null)
@@ -504,14 +583,6 @@ autoColorButton.addEventListener("click", function() {
   console.log("Auto-Color is now " + (autoColorEnabled ? "ENABLED" : "DISABLED"));
 });
 
-    setInterval(() => {
-    try {
-      fetch('https://pixelzone.io/users/profile/me').then(body => body.json().then(data => {
-        document.getElementById('pixelCounter').innerText = data.pixels;
-      }))
-
-    } catch (err) { };
-  }, 5000)
 }
 
 window.addEventListener('load', function () {
@@ -525,6 +596,257 @@ window.addEventListener('load', function () {
     }
   }, 100)
 }, false);
+// Кнопка помощи (непрозрачная, позиция слева на одном уровне с аватаркой/меню)
+const helpButton = document.createElement('div');
+helpButton.id = 'helpButton';
+helpButton.style.position = 'fixed';
+helpButton.style.top = '5px';  // На одном уровне с аватаркой (верхний край)
+helpButton.style.right = '55px';  // Слева, вместо right
+helpButton.style.zIndex = '10001';
+helpButton.style.background = '#888888';  // Полностью непрозрачный синий
+helpButton.style.color = 'white';
+helpButton.style.padding = '8px 8px';
+helpButton.style.borderRadius = '5px';
+helpButton.style.border = '2px solid #ffffff';
+helpButton.style.cursor = 'pointer';
+helpButton.style.fontSize = '22px';
+helpButton.style.transition = 'background 0.3s, transform 0.3s';
+helpButton.textContent = '🛟 ';
+helpButton.addEventListener('mouseover', () => {
+  helpButton.style.background = '#888888';  // Тёмнее при hover
+  helpButton.style.transform = 'scale(1.1)';
+});
+helpButton.addEventListener('mouseout', () => {
+  helpButton.style.background = '#888888';
+  helpButton.style.transform = 'scale(1)';
+});
+document.body.appendChild(helpButton);
+
+// Модальное окно (без изменений, solid white фон для читаемости)
+const helpModal = document.createElement('div');
+helpModal.id = 'helpModal';
+helpModal.style.display = 'none';
+helpModal.style.position = 'fixed';
+helpModal.style.top = '50%';
+helpModal.style.left = '50%';
+helpModal.style.transform = 'translate(-50%, -50%)';
+helpModal.style.background = '#ffffff';
+helpModal.style.padding = '24px';
+helpModal.style.borderRadius = '10px';
+helpModal.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+helpModal.style.zIndex = '10002';
+helpModal.style.maxWidth = '600px';
+helpModal.style.overflowY = 'auto';
+helpModal.style.maxHeight = '80vh';
+helpModal.style.fontFamily = 'Arial, sans-serif';
+helpModal.style.lineHeight = '1.5';
+helpModal.style.color = '#333333';
+document.body.appendChild(helpModal);
+
+// Кнопка закрытия
+const closeButton = document.createElement('span');
+closeButton.textContent = '×';
+closeButton.style.position = 'absolute';
+closeButton.style.top = '10px';
+closeButton.style.right = '10px';
+closeButton.style.fontSize = '24px';
+closeButton.style.cursor = 'pointer';
+closeButton.style.color = '#aaaaaa';
+closeButton.style.transition = 'color 0.3s';
+closeButton.addEventListener('mouseover', () => { closeButton.style.color = '#333333'; });
+closeButton.addEventListener('mouseout', () => { closeButton.style.color = '#aaaaaa'; });
+closeButton.addEventListener('click', () => { helpModal.style.display = 'none'; });
+helpModal.appendChild(closeButton);
+
+// Контейнер текста
+const helpContentDiv = document.createElement('div');
+helpContentDiv.id = 'helpContent';
+helpContentDiv.style.color = '#333333';
+helpContentDiv.style.fontSize = '16px';
+helpModal.appendChild(helpContentDiv);
+
+// Обработчик клика
+helpButton.addEventListener('click', () => {
+  if (audioEls && audioEls.info) {
+    audioEls.info.currentTime = 0;
+    audioEls.info.play();
+  }
+  const lang = localStorage.getItem("minimapLang") || "ru";
+  helpContentDiv.innerHTML = texts.helpContent[lang] || texts.helpContent["ru"];
+  helpModal.style.display = 'block';
+});
+
+// Закрытие по клику вне
+window.addEventListener('click', (event) => {
+  if (event.target === helpModal) helpModal.style.display = 'none';
+});
+// === СТАБИЛЬНОЕ ПЕРЕТАСКИВАНИЕ + МАГНИТ + ОТКРЫТИЕ (без ломания startup) ===
+(function () {
+  // не ломаем выполнение, ловим любые ошибки
+  try {
+    const LOG_PREFIX = "minimap-drag:";
+    let tries = 0;
+
+    function waitFor() {
+      tries++;
+      const map = document.getElementById("minimapbg");
+      if (!map) {
+        if (tries < 12) {
+          setTimeout(waitFor, 200);
+          return;
+        } else {
+          console.warn(LOG_PREFIX, "element #minimapbg not found — giving up");
+          return;
+        }
+      }
+      attach(map);
+    }
+
+    function attach(map) {
+      if (map.__minimapDragAttached) return;
+      map.__minimapDragAttached = true;
+
+      // Надёжные CSS-основы — фиксируем поведение
+      map.style.position = map.style.position || "fixed";
+      map.style.zIndex = map.style.zIndex || 9999;
+      map.style.touchAction = "none"; // чтобы pointer события работали плавно
+
+      // Восстановление позиции (не ломает, если нет данных)
+      try {
+        const saved = JSON.parse(localStorage.getItem("minimapPosition") || "{}");
+        if (saved && saved.anchor === "right") {
+          map.style.right = (saved.right ?? 10) + "px";
+          map.style.left = "auto";
+          map.style.bottom = (saved.bottom ?? 10) + "px";
+        } else if (saved && typeof saved.left === "number") {
+          map.style.left = (saved.left ?? 10) + "px";
+          map.style.bottom = (saved.bottom ?? 10) + "px";
+          map.style.right = "auto";
+        }
+      } catch (e) { /* ignore */ }
+
+      let dragging = false;
+      let startX = 0, startY = 0, startLeft = 0, startBottom = 0;
+      let moved = false;
+
+      function isInteractive(node) {
+        if (!node) return false;
+        if (node.closest) {
+          if (node.closest("#minimap_settings") || node.closest("#minimap-config") || node.closest("#minimap-config") ) return true;
+          if (node.closest("button, input, select, canvas, a, label")) return true;
+          if (node.closest("[data-action], [onclick], [role='button'], [tabindex]")) return true;
+        }
+        // fallback: tag check upward
+        let el = node;
+        while (el && el !== document) {
+          const t = el.tagName && el.tagName.toLowerCase();
+          if (["button","input","select","label","a","canvas","svg"].includes(t)) return true;
+          el = el.parentElement;
+        }
+        return false;
+      }
+
+      map.addEventListener("pointerdown", function (ev) {
+        // не начинаем перетаскивание, если кликнули по контролу внутри карты
+        if (isInteractive(ev.target)) return;
+        dragging = true;
+        moved = false;
+        startX = ev.clientX; startY = ev.clientY;
+        const r = map.getBoundingClientRect();
+        startLeft = r.left;
+        startBottom = window.innerHeight - r.bottom;
+        map.setPointerCapture && map.setPointerCapture(ev.pointerId);
+        map.style.cursor = "grabbing";
+      }, { passive: false });
+
+      window.addEventListener("pointermove", function (ev) {
+        if (!dragging) return;
+        const dx = ev.clientX - startX;
+        const dy = ev.clientY - startY;
+        if (Math.abs(dx) > 2 || Math.abs(dy) > 2) moved = true;
+        // Передвигаем, используя left/bottom, и снимаем right, если он был
+        map.style.left = (startLeft + dx) + "px";
+        map.style.bottom = (startBottom - dy) + "px";
+        map.style.right = "auto";
+      }, { passive: true });
+
+      window.addEventListener("pointerup", function (ev) {
+        if (!dragging) return;
+        dragging = false;
+        map.releasePointerCapture && map.releasePointerCapture(ev.pointerId);
+        map.style.cursor = "grab";
+
+        // Привязка к краям (порог 10px)
+        const r = map.getBoundingClientRect();
+        const TH = 10;
+        const nearLeft = r.left <= TH;
+        const nearRight = window.innerWidth - r.right <= TH;
+        const nearBottom = window.innerHeight - r.bottom <= TH;
+
+        if (nearLeft) {
+          map.style.left = "0px"; map.style.right = "auto";
+        } else if (nearRight) {
+          map.style.right = "0px"; map.style.left = "auto";
+        }
+        if (nearBottom) map.style.bottom = "0px";
+
+        // Сохраняем позицию
+        try {
+          const cs = getComputedStyle(map);
+          const save = {
+            left: cs.left === "auto" ? undefined : parseInt(cs.left) || 0,
+            right: cs.right === "auto" ? undefined : parseInt(cs.right) || 0,
+            bottom: parseInt(cs.bottom) || 0,
+            anchor: cs.left === "auto" ? "right" : "left"
+          };
+          localStorage.setItem("minimapPosition", JSON.stringify(save));
+        } catch (e) { console.warn("minimap-drag: save failed", e); }
+
+        // Если карта действительно двигалась и отпущена у края — считаем это "стуком" и открываем карту
+        if (moved && (nearLeft || nearRight)) {
+          try {
+            // Открытие: щёлкаем элемент, который управляет показом (minimap_text открывает карту в original code)
+            const openEl = document.getElementById("minimap-text") || document.getElementById("settings-map") || document.getElementById("hide-map");
+            if (openEl) {
+              // если карта скрыта, клик по minmap-text открывает
+              openEl.click();
+            } else {
+              // альтернативный: вызвать toggleShow(true), если доступен
+              if (typeof toggleShow === "function") toggleShow(true);
+            }
+          } catch (e) { /* ignore */ }
+        }
+      }, { passive: true });
+
+      // При ресайзе подведём карту в зону видимости
+      window.addEventListener("resize", function () {
+        const r = map.getBoundingClientRect();
+        let changed = false;
+        if (r.right > window.innerWidth) { map.style.left = Math.max(10, window.innerWidth - r.width - 10) + "px"; map.style.right = "auto"; changed = true;}
+        if (r.bottom > window.innerHeight) { map.style.bottom = "10px"; changed = true;}
+        if (changed) {
+          try {
+            const cs = getComputedStyle(map);
+            localStorage.setItem("minimapPosition", JSON.stringify({
+              left: cs.left === "auto" ? undefined : parseInt(cs.left) || 0,
+              right: cs.right === "auto" ? undefined : parseInt(cs.right) || 0,
+              bottom: parseInt(cs.bottom) || 0,
+              anchor: cs.left === "auto" ? "right" : "left"
+            }));
+          } catch (e) {}
+        }
+      });
+
+      console.log("minimap-drag: attached and ready");
+    }
+
+    waitFor();
+  } catch (err) {
+    console.error("minimap-drag: unexpected error", err);
+  }
+})();
+
+
 
 const sounds = {
     openMap:   "https://github.com/EdwardScorpio/pz-map/raw/refs/heads/main/MiniMap%20Sound/openMap.mp3",
@@ -572,35 +894,20 @@ var hoveringColor = window.board.getImageData(195, 140, 1, 1).data + '';
 
   switch (hoveringColor) {
     case '38,38,38,255': clickColor(0); break;
-
     case '0,0,0,255': clickColor(1); break;
-
     case '128,128,128,255': clickColor(2); break;
-
     case '255,255,255,255': clickColor(3); break;
-
     case '153,98,61,255': clickColor(4); break;
-
     case '255,163,200,255': clickColor(5); break;
-
     case '207,115,230,255': clickColor(6); break;
-
     case '128,0,128,255': clickColor(7); break;
-
     case '229,0,0,255': clickColor(8); break;
-
     case '229,137,0,255': clickColor(9); break;
-
     case '229,229,0,255': clickColor(10); break;
-
     case '150,230,70,255': clickColor(11); break;
-
     case '0,190,0,255': clickColor(12); break;
-
     case '0,230,230,255': clickColor(13); break;
-
     case '0,136,204,255': clickColor(14); break;
-
     case '0,0,230,255': clickColor(15); break;
   }
 }
@@ -608,7 +915,6 @@ var hoveringColor = window.board.getImageData(195, 140, 1, 1).data + '';
 window.listTemplates = function () {
   var ttlpx = 0;
   var mdstr = "";
-
   if (!template_list) {
     console.log("### No templates. Show the minimap first");
     return;
@@ -616,70 +922,74 @@ window.listTemplates = function () {
 
   Object.keys(template_list).map(function (index, ele) {
     var eles = template_list[index];
-
     if (!eles.name) return;
-
     var z = eles.width > 300 ? 2 : eles.width > 100 ? 4 : 8;
-
     var n = eles.name + "";
-
     if (n.indexOf("//") < 0) n = baseTemplateUrl + n;
-
     mdstr += '\n#### ' + index + ' ' + eles.width + 'x' + eles.height + ' ' + n;
     mdstr += ' https://pixelzone.io/?p=' + Math.floor(eles.x + eles.width / 2) + ',' + Math.floor(eles.y + eles.height / 2) + ',' + z + '\n';
-
     if (!isNaN(eles.width) && !isNaN(eles.height)) ttlpx += eles.width * eles.height;
   });
 
   mdstr = '### Total pixel count: ' + ttlpx + '\n' + mdstr;
 }
 
+function updatePixelCounter() {
+  fetch('https://pixelzone.io/users/profile/me')
+    .then(r => r.json())
+    .then(data => {
+      const el = document.getElementById('pixelCounter');
+      if (el) el.innerText = data.pixels;
+    })
+    .catch(() => {});
+}
+
 function updateloop() {
     if (!toggle_show) return;
 
     // Здесь мы напрямую определяем template_list, вместо загрузки из файла
-    window.template_list = {
+ window.template_list = {
         "Map 1": {
-            name: "https://i.ibb.co/C5ymTzZq/2-2-map.png",
+           name: "https://i.ibb.co/GBhRrc1/dither-it-2x2-map3.png",
             x: -4096,
             y: -4096,
             width: 2423,
             height: 5268
         },
         "Map 2": {
-            name: "https://i.ibb.co/1YRY3xZk/Arstotka-2.png",
+            name: "https://i.ibb.co/d4Dmz2D0/arstotzka-turkey-newest.png",
             x: 685,
             y: -686,
             width: 807,
             height: 1400
         },
         "new_art_3": {
-name: "n",
-            x: -4000,
-            y: -4000,
-            width: 800,
-            height: 347
+            name: "https://i.ibb.co/5h87dMCg/Banknote-Arstotzka.png",
+            x: 1354,
+            y: 78,
+            width: 189,
+            height: 91
         },
         "new_art_4": {
-            name: "",
-            x: -4066,
-            y: -1242,
-            width: 250,
-            height: 230
+            name: "https://i.ibb.co/ycybPX3V/dither-it-IMG-9276-11.png",
+            x: 1481,
+            y: -482,
+            width: 248,
+            height: 248
         },
-        "new_art_5": {
-            name: "",
-            x: -4066,
-            y: -1242,
-            width: 250,
-            height: 230
-        }
+        "MDOWLMAN": {
+        name: "https://i.ibb.co/N6NTbKdQ/image-1.png",
+        x: 1420,
+        y: -98,
+        width: 128,
+        height: 129
+         },
     };
-
     if (!toggle_follow) getCenter();
 
     image_list = [];
     loadTemplates();
+    updatePixelCounter();
 }
 
 function toggleShow(newValue) {
@@ -693,8 +1003,8 @@ function toggleShow(newValue) {
     loadTemplates();
   } else {
     minimap_box.style.display = "none";
-    const savedLang = localStorage.getItem("minimapLang") || "ru";
-    minimap_text.innerHTML = texts.openText[savedLang] || "ОТКРЫТЬ МИНИ-КАРТУ";
+    const Lang = localStorage.getItem("minimapLang") || "ru";
+    minimap_text.innerHTML = texts.openText[Lang] || "ОТКРЫТЬ МИНИ-КАРТУ";
     minimap_text.style.display = "block";
     minimap_text.style.cursor = "pointer";
     document.getElementById("minimap-config").style.display = "none";
@@ -702,31 +1012,14 @@ function toggleShow(newValue) {
   var g = document.getElementsByClassName("grecaptcha-badge");
   if (g[0]) g[0].style.display = "none";
 }
-function zoomIn() {
-  if (!zooming_in) return;
-  zoomlevel = zoomlevel * 1.2;
-  if (zoomlevel > 45) {
-    zoomlevel = 45;
-    return;
-  }
-  drawBoard();
-  drawCursor();
-  loadTemplates();
-  setTimeout(zoomIn, zoom_time);
-}
+function zoomIn() { if (!zooming_in) return; // Увеличиваем и жёстко ограничиваем сверху
+                   zoomlevel = Math.min(45, zoomlevel * 1.03); drawBoard(); drawCursor(); loadTemplates(); // Если мы достигли лимита — остановим цикл и сбросим флаг
+                   if (zoomlevel >= 45) { zooming_in = false; return; } setTimeout(zoomIn, zoom_time); }
+function zoomOut() { if (!zooming_out) return; // Уменьшаем и ограничиваем снизу
+                   zoomlevel = Math.max(1, zoomlevel / 1.03); drawBoard(); drawCursor(); loadTemplates();
+                    if (zoomlevel <= 1) { zooming_out = false; return; } drawBoard(); drawCursor();
+                   loadTemplates(); setTimeout(zoomOut, zoom_time); }
 
-function zoomOut() {
-  if (!zooming_out) return;
-  zoomlevel = zoomlevel / 1.2;
-  if (zoomlevel < 1) {
-    zoomlevel = 1;
-    return;
-  }
-  drawBoard();
-  drawCursor();
-  loadTemplates();
-  setTimeout(zoomOut, zoom_time);
-}
 
 function loadTemplates() {
   if (!toggle_show) return;
@@ -763,8 +1056,8 @@ function loadTemplates() {
     if (zooming_in == false && zooming_out == false) {
       minimap_box.style.display = "none";
       minimap_text.style.display = "block";
-  const savedLang = localStorage.getItem("minimapLang") || "ru";
-minimap_text.innerHTML = texts.emptyTemplates[savedLang] || texts.emptyTemplates["ru"];
+  const Lang = localStorage.getItem("minimapLang") || "ru";
+minimap_text.innerHTML = texts.emptyTemplates[Lang] || texts.emptyTemplates["ru"];
       minimap_text.style.cursor = "auto";
     }
   } else {
@@ -814,27 +1107,61 @@ function drawTemplates() {
   }
 }
 
+let drawGrid = false;
+
 function drawBoard() {
+  if (!ctx_minimap_board || !minimap_board || !minimap) return;
+
   ctx_minimap_board.clearRect(0, 0, minimap_board.width, minimap_board.height);
-  if (zoomlevel <= 4.6) return;
+  if (!drawGrid || zoomlevel <= 4.6) return;
+
+  const z = zoomlevel;
+  const bw = minimap_board.width + z;
+  const bh = minimap_board.height + z;
+
+  // Центрирование сетки по центру миникарты
+  const xoff_m = -((minimap.width / 2) - (z / 2));
+  const yoff_m = -((minimap.height / 2) - (z / 2));
+
   ctx_minimap_board.beginPath();
-  var bw = minimap_board.width + zoomlevel;
-  var bh = minimap_board.height + zoomlevel;
-  var xoff_m = (minimap.width / 2) % zoomlevel - zoomlevel;
-  var yoff_m = (minimap.height / 2) % zoomlevel - zoomlevel;
-  var z = 1 * zoomlevel;
   ctx_minimap_board.lineWidth = 0.2;
-  for (var x = 0; x <= bw; x += z) {
+
+  for (let x = 0; x <= bw; x += z) {
     ctx_minimap_board.moveTo(x + xoff_m, yoff_m);
     ctx_minimap_board.lineTo(x + xoff_m, bh + yoff_m);
   }
-  for (x = 0; x <= bh; x += z) {
-    ctx_minimap_board.moveTo(xoff_m, x + yoff_m);
-    ctx_minimap_board.lineTo(bw + xoff_m, x + yoff_m);
+  for (let y = 0; y <= bh; y += z) {
+    ctx_minimap_board.moveTo(xoff_m, y + yoff_m);
+    ctx_minimap_board.lineTo(bw + xoff_m, y + yoff_m);
   }
-  ctx_minimap_board.strokeStyle = "Gray";
+
+  ctx_minimap_board.strokeStyle = "white";
   ctx_minimap_board.stroke();
 }
+
+(function () {
+  const interval = setInterval(() => {
+    const gridCheckbox = document.getElementById("toggleGrid");
+    const labelText = document.getElementById("gridLabelText");
+
+    if (gridCheckbox && labelText) {
+      // Восстановление предыдущего состояния (если хочешь, добавим localStorage позже)
+      gridCheckbox.checked = drawGrid;
+
+      // Перевод надписи
+      const lang = localStorage.getItem("minimapLang") || "ru";
+      labelText.textContent = texts.showGrid[lang] || texts.showGrid["ru"];
+
+      // Обработчик
+      gridCheckbox.addEventListener("change", () => {
+        drawGrid = gridCheckbox.checked;
+        drawBoard();
+      });
+
+      clearInterval(interval);
+    }
+  }, 100);
+})();
 
 function drawCursor() {
   var x_left = x_window * 1 - minimap.width / zoomlevel / 2;
@@ -867,16 +1194,6 @@ function getCenter() {
 
   loadTemplates();
 }
-
-if (document.getElementById("factionSelect") && document.getElementById("factionSelect").value === "NewFaction") {
-  errorDetectionEnabled = true;
-setupErrorDetectionCanvases();
-} else {
-  errorDetectionEnabled = false;
-  var diff = document.getElementById("diffCanvas");
-  if (diff) diff.style.display = "none";
-}
-
 window.addEventListener('keydown', function (e) {
   switch (e.keyCode) {
     case 32: //space
@@ -887,7 +1204,6 @@ window.addEventListener('keydown', function (e) {
         console.log(cachebreaker);
         updateloop();
       }
-
       mymousemove();
     break;
     case 81: clickColor(0); break;
@@ -1029,6 +1345,7 @@ function compareVersions(v1, v2) {
     }
     return 0;
 }
+
 function addUpdateCheckListener() {
   const checkUpdatesButton = document.getElementById('check-updates');
   if (checkUpdatesButton) {
@@ -1072,8 +1389,6 @@ const texts = {
     ru: "Информация", en: "Info", es: "Info", tr: "Bilgi", fi: "Info",
     fr: "Info", pt: "Info", sv: "Info", kk: "Ақпарат"
   },
-    transparency:{
-    ru:"Прозрачность",en:"Transparency", es:"Transparencia", tr:"Şeffaflık", fi:"Läpinäkyvyys", fr:"Transparence", pt:"Transparência", sv:"Transparens", kk:"Мөлдірлік" },
   volume: {
       ru:"Звук", en:"Volume", es:"Volumen", tr:"Ses", fi:"Äänenvoim",
       fr:"Volume", pt:"Volume",sv:"Volym",kk:"Дыбыс" },
@@ -1081,101 +1396,16 @@ const texts = {
       ru:"Настройки Мини-Карты", en:"Minimap Settings", es:"Configuración del minimapa", tr:"Mini Harita Ayarları", fi:"Pienikartan asetukset",
       fr:"Paramètres de la mini-carte", pt:"Configurações do minimapa", sv:"Minikarta inställningar", kk:"Мини-карта баптаулары" },
     infoContent: {
-    ru: `
-      <p>Привет фанат телеканала 2х2!
-      <p>Данная мини-карта сделана специально для тебя!</p>
-      <p>Благодарности:</p>
-      <ul>
-        <li>Edward Scorpio — генерал Пиксельных войн</li>
-        <li>Ultimate Pekar — генерал Пиксельных войн</li>
-        <li>MDOwlman — генерал-коменданторе</li>
-      </ul>
-      <p>Карта создана 18 сентября 2024 года.</p>
-    `,
-    en: `
-      <p>Hello 2x2 TV fan! This minimap was made just for you!</p>
-      <p>Acknowledgements:</p>
-      <ul>
-        <li>Edward Scorpio — Pixel Wars General</li>
-        <li>Ultimate Pekar — Pixel Wars General</li>
-        <li>MDOwlman — Grand Commander</li>
-      </ul>
-      <p>Map officially created on September 18, 2024.</p>
-    `,
-    es: `
-      <p>¡Hola fan de 2x2 TV! ¡Este minimapa fue creado especialmente para ti!</p>
-      <p>Agradecimientos:</p>
-      <ul>
-        <li>Edward Scorpio — General de las Guerras de Píxeles</li>
-        <li>Ultimate Pekar — General de las Guerras de Píxeles</li>
-        <li>MDOwlman — Gran Comandante</li>
-      </ul>
-      <p>El mapa fue creado oficialmente el 18 de septiembre de 2024.</p>
-    `,
-    tr: `
-      <p>2x2 TV hayranı merhaba! Bu minimap tam sana göre yapıldı!</p>
-      <p>Teşekkürler:</p>
-      <ul>
-        <li>Edward Scorpio — Piksel Savaşları Generali</li>
-        <li>Ultimate Pekar — Piksel Savaşları Generali</li>
-        <li>MDOwlman — Büyük Komutan</li>
-      </ul>
-      <p>Harita resmi olarak 18 Eylül 2024 tarihinde oluşturuldu.</p>
-    `,
-    fi: `
-      <p>Hei 2x2 TV:n fani!
-      <p>Tämä minimappi on tehty juuri sinua varten!</p>
-      <p>Kiitokset:</p>
-      <ul>
-        <li>Edward Scorpio — Pikselisotien kenraali</li>
-        <li>Ultimate Pekar — Pikselisotien kenraali</li>
-        <li>MDOwlman — Suuri komentaja</li>
-      </ul>
-      <p>Kartta luotiin virallisesti 18. syyskuuta 2024.</p>
-    `,
-    fr: `
-      <p>Bonjour fan de la chaîne 2x2 !
-      <p>Cette minicarte a été créée spécialement pour toi !</p>
-      <p>Remerciements :</p>
-      <ul>
-        <li>Edward Scorpio — Général des Guerres de Pixels</li>
-        <li>Ultimate Pekar — Général des Guerres de Pixels</li>
-        <li>MDOwlman — Grand Commandant</li>
-      </ul>
-      <p>La carte a été officiellement créée le 18 septembre 2024.</p>
-    `,
-    pt: `
-      <p>Olá fã do canal 2x2 !
-      <p> Este minimapa foi feito especialmente para você!</p>
-      <p>Agradecimentos:</p>
-      <ul>
-        <li>Edward Scorpio — General das Guerras de Pixels</li>
-        <li>Ultimate Pekar — General das Guerras de Pixels</li>
-        <li>MDOwlman — Grande Comandante</li>
-      </ul>
-      <p>O mapa foi criado oficialmente em 18 de setembro de 2024.</p>
-    `,
-    sv: `
-      <p>Hej 2x2 TV-fan! Denna minimap har skapats speciellt för dig!</p>
-      <p>Tack till:</p>
-      <ul>
-        <li>Edward Scorpio — General för Pixelkrigen</li>
-        <li>Ultimate Pekar — General för Pixelkrigen</li>
-        <li>MDOwlman — Stor kommendant</li>
-      </ul>
-      <p>Kartan skapades officiellt den 18 september 2024.</p>
-    `,
-    kk: `
-      <p>2x2 телеканалының жанкүйері, сәлем!
-      <p>Бұл мини-карта дәл сіз үшін жасалды!</p>
-      <p>Рақмет:</p>
-      <ul>
-        <li>Edward Scorpio — Пиксель соғыстары генералы</li>
-        <li>Ultimate Pekar — Пиксель соғыстары генералы</li>
-        <li>MDOwlman — Бас қолбасшы</li>
-      </ul>
-      <p>Карта ресми түрде 2024 жылғы 18 қыркүйекте жасалған.</p>
-    `},
+    ru: " <p>Привет фанат телеканала 2х2! <p>Данная мини-карта сделана специально для тебя!</p> <p>Благодарности:</p> <ul> <li>Edward Scorpio — генерал Пиксельных войн</li> <li>Ultimate Pekar — генерал Пиксельных войн</li> <li>MDOwlman — генерал-коменданторе</li> </ul> <p>Карта создана 18 сентября 2024 года.</p>",
+    en: " <p>Hello 2x2 TV fan! This minimap was made just for you!</p> <p>Acknowledgements:</p> <ul> <li>Edward Scorpio — Pixel Wars General</li> <li>Ultimate Pekar — Pixel Wars General</li> <li>MDOwlman — Grand Commander</li></ul> <p>Map officially created on September 18, 2024.</p>",
+    es: "<p>¡Hola fan de 2x2 TV! ¡Este minimapa fue creado especialmente para ti!</p> <p>Agradecimientos:</p> <ul> <li>Edward Scorpio — General de las Guerras de Píxeles</li> <li>Ultimate Pekar — General de las Guerras de Píxeles</li> <li>MDOwlman — Gran Comandante</li></ul> <p>El mapa fue creado oficialmente el 18 de septiembre de 2024.</p>",
+    tr: "<p>2x2 TV hayranı merhaba! Bu minimap tam sana göre yapıldı!</p> <p>Teşekkürler:</p> <ul> <li>Edward Scorpio — Piksel Savaşları Generali</li> <li>Ultimate Pekar — Piksel Savaşları Generali</li> <li>MDOwlman — Büyük Komutan</li> </ul> <p>Harita resmi olarak 18 Eylül 2024 tarihinde oluşturuldu.</p>",
+    fi: "<p>Hei 2x2 TV:n fani! <p>Tämä minimappi on tehty juuri sinua varten!</p> <p>Kiitokset:</p> <ul> <li>Edward Scorpio — Pikselisotien kenraali</li><li>Ultimate Pekar — Pikselisotien kenraali</li><li>MDOwlman — Suuri komentaja</li> </ul> <p>Kartta luotiin virallisesti 18. syyskuuta 2024.</p>",
+    fr: "<p>Bonjour fan de la chaîne 2x2 ! <p>Cette minicarte a été créée spécialement pour toi !</p> <p>Remerciements :</p> <ul> <li>Edward Scorpio — Général des Guerres de Pixels</li><li>Ultimate Pekar — Général des Guerres de Pixels</li><li>MDOwlman — Grand Commandant</li></ul> <p>La carte a été officiellement créée le 18 septembre 2024.</p>",
+    pt: "<p>Olá fã do canal 2x2 ! <p> Este minimapa foi feito especialmente para você!</p> <p>Agradecimentos:</p> <ul> <li>Edward Scorpio — General das Guerras de Pixels</li> <li>Ultimate Pekar — General das Guerras de Pixels</li> <li>MDOwlman — Grande Comandante</li> </ul> <p>O mapa foi criado oficialmente em 18 de setembro de 2024.</p>",
+    sv: " <p> Hej 2x2 TV-fan! Denna minimap har skapats speciellt för dig!</p> <p>Tack till:</p> <ul> <li>Edward Scorpio — General för Pixelkrigen</li> <li>Ultimate Pekar — General för Pixelkrigen</li><li>MDOwlman — Stor kommendant</li></ul> <p>Kartan skapades officiellt den 18 september 2024.</p>",
+    kk:"<p>2x2 телеканалының жанкүйері, сәлем! <p>Бұл мини-карта дәл сіз үшін жасалды!</p> <p>Рақмет:</p><ul> <li>Edward Scorpio — Пиксель соғыстары генералы</li><li>Ultimate Pekar — Пиксель соғыстары генералы</li><li>MDOwlman — Бас қолбасшы</li></ul><p>Карта ресми түрде 2024 жылғы 18 қыркүйекте жасалған.</p>"
+    },
     language: {
     ru: "Язык",
     en: "Language",
@@ -1256,7 +1486,44 @@ const texts = {
   pt: "=2X2 MINI MAPA=",
   sv: "=2X2 MINIKARTA=",
   kk: "=2X2 МИНИ-КАРТА="
+    },
+  showGrid: {
+    ru: "Показывать сетку",
+    en: "Show Grid",
+    es: "Mostrar cuadrícula",
+    tr: "Izgara Göster",
+    fi: "Näytä ruudukko",
+    fr: "Afficher la grille",
+    pt: "Mostrar grade",
+    sv: "Visa rutnät",
+    kk: "Тор көзін көрсету"
+  },
+    zoomLevelLabel: {
+    ru: "Масштаб", en: "Zoom", es: "Zoom", tr: "Yakınlaştırma",
+    fi: "Zoom", fr: "Zoom", pt: "Zoom", sv: "Zoom", kk: "Масштаб"
+    },
+    helpContent: {
+  ru: "<h2>Полезная информация о мини-карте</h2><p>Мини-карта для Pixel Battle Team Crew в pixelzone.io.</p><p><b>Инструкции:</b> Установи Tampermonkey, добавь скрипт. Шаблоны загружаются автоматически.</p><p><b>Клавиши:</b><ul><li>Пробел: Показать/скрыть карту (обновляет шаблоны).</li><li>QERTYUIOP FGHJKLZ: Выбор цвета.</li><li>+/- (numpad или =/-): Масштаб.</li><li>0: Авто-выбор цвета.</li><li>9: Проверить обновления.</li></ul></p><p>Карта стартует скрытой — открой её пробелом. Благодарности: Edward Scorpio, Ultimate Pekar, MDOwlman. Создана 18.09.2024.</p>",
+  en: "<h2>Useful Minimap Info</h2><p>Minimap for Pixel Battle Team Crew on pixelzone.io.</p><p><b>Instructions:</b> Use Tampermonkey to install the script. Templates load automatically.</p><p><b>Keys:</b><ul><li>Space: Show/hide map (reloads templates).</li><li>QERTYUIOP FGHJKLZ: Select color.</li><li>+/- (numpad or =/-): Zoom.</li><li>0: Toggle auto-color.</li><li>9: Check updates.</li></ul></p><p>Map starts hidden — open with space. Thanks to: Edward Scorpio, Ultimate Pekar, MDOwlman. Created 09/18/2024.</p>",
+  es: "<h2>Información útil del minimapa</h2><p>Minimapa para Pixel Battle Team Crew en pixelzone.io.</p><p><b>Instrucciones:</b> Usa Tampermonkey para instalar el script. Las plantillas se cargan automáticamente.</p><p><b>Teclas:</b><ul><li>Espacio: Mostrar/ocultar mapa (recarga plantillas).</li><li>QERTYUIOP FGHJKLZ: Seleccionar color.</li><li>+/- (numpad o =/-): Zoom.</li><li>0: Alternar auto-color.</li><li>9: Verificar actualizaciones.</li></ul></p><p>El mapa inicia oculto — ábrelo con espacio. Gracias a: Edward Scorpio, Ultimate Pekar, MDOwlman. Creado el 18/09/2024.</p>",
+  tr: "<h2>Yararlı Minimapa Bilgileri</h2><p>Pixel Battle Team Crew için pixelzone.io minimapası.</p><p><b>Talimatlar:</b> Tampermonkey kullanarak script'i yükleyin. Şablonlar otomatik yüklenir.</p><p><b>Tuştar:</b><ul><li>Boşluk: Haritayı göster/gizle (şablonları yeniler).</li><li>QERTYUIOP FGHJKLZ: Renk seç.</li><li>+/- (numpad veya =/-): Yakınlaştır.</li><li>0: Otomatik renk değiştir.</li><li>9: Güncellemeleri kontrol et.</li></ul></p><p>Harita gizli başlar — boşlukla aç. Teşekkürler: Edward Scorpio, Ultimate Pekar, MDOwlman. Oluşturuldu: 18.09.2024.</p>",
+  fi: "<h2>Hyödyllistä minimap-tietoa</h2><p>Minimappi Pixel Battle Team Crew'lle pixelzone.io:ssa.</p><p><b>Ohjeet:</b> Asenna Tampermonkeyllä scripti. Mallit latautuvat automaattisesti.</p><p><b>Näppäimet:</b><ul><li>Välilyönti: Näytä/piilota kartta (päivittää mallit).</li><li>QERTYUIOP FGHJKLZ: Valitse väri.</li><li>+/- (numpad tai =/-): Zoomaa.</li><li>0: Vaihda automaattinen väri.</li><li>9: Tarkista päivitykset.</li></ul></p><p>Kartta alkaa piilotettuna — avaa välilyönnillä. Kiitos: Edward Scorpio, Ultimate Pekar, MDOwlman. Luotu 18.09.2024.</p>",
+  fr: "<h2>Informations utiles sur la minicarte</h2><p>Minicarte pour Pixel Battle Team Crew sur pixelzone.io.</p><p><b>Instructions :</b> Utilisez Tampermonkey pour installer le script. Les modèles se chargent automatiquement.</p><p><b>Touches :</b><ul><li>Espace : Afficher/masquer la carte (recharge les modèles).</li><li>QERTYUIOP FGHJKLZ : Sélectionner la couleur.</li><li>+/- (numpad ou =/-) : Zoom.</li><li>0 : Basculer auto-couleur.</li><li>9 : Vérifier les mises à jour.</li></ul></p><p>La carte commence masquée — ouvrez-la avec espace. Merci à : Edward Scorpio, Ultimate Pekar, MDOwlman. Créée le 18/09/2024.</p>",
+  pt: "<h2>Informações úteis do minimapa</h2><p>Minimapa para Pixel Battle Team Crew no pixelzone.io.</p><p><b>Instruções:</b> Use Tampermonkey para instalar o script. Modelos carregam automaticamente.</p><p><b>Teclas:</b><ul><li>Espaço: Mostrar/ocultar mapa (recarrega modelos).</li><li>QERTYUIOP FGHJKLZ: Selecionar cor.</li><li>+/- (numpad ou =/-): Zoom.</li><li>0: Alternar auto-cor.</li><li>9: Verificar atualizações.</li></ul></p><p>O mapa inicia oculto — abra com espaço. Obrigado a: Edward Scorpio, Ultimate Pekar, MDOwlman. Criado em 18/09/2024.</p>",
+  sv: "<h2>Användbar minimapkarta-info</h2><p>Minimap för Pixel Battle Team Crew på pixelzone.io.</p><p><b>Instruktioner:</b> Använd Tampermonkey för att installera scriptet. Mallar laddas automatiskt.</p><p><b>Tangenter:</b><ul><li>Mellanslag: Visa/dölj karta (uppdaterar mallar).</li><li>QERTYUIOP FGHJKLZ: Välj färg.</li><li>+/- (numpad eller =/-): Zooma.</li><li>0: Växla auto-färg.</li><li>9: Kontrollera uppdateringar.</li></ul></p><p>Kartan startar dold — öppna med mellanslag. Tack till: Edward Scorpio, Ultimate Pekar, MDOwlman. Skapad 18.09.2024.</p>",
+  kk: "<h2>Мини-карта туралы пайдалы ақпарат</h2><p>Pixel Battle Team Crew үшін pixelzone.io мини-картасы.</p><p><b>Нұсқаулар:</b> Tampermonkey көмегімен скриптті орнатыңыз. Үлгілер автоматты түрде жүктеледі.</p><p><b>Пернелер:</b><ul><li>Бос орын: Картаны көрсету/жасыру (үлгілерді жаңартады).</li><li>QERTYUIOP FGHJKLZ: Түсті таңдау.</li><li>+/- (numpad немесе =/-): Масштабтау.</li><li>0: Авто-түс ауыстыру.</li><li>9: Жаңартуларды тексеру.</li></ul></p><p>Карта жасырын басталады — бос орынмен ашыңыз. Рақмет: Edward Scorpio, Ultimate Pekar, MDOwlman. Жасалған: 18.09.2024.</p>"
 },
+    helpButton: {
+    ru: "Помощь",
+    en: "Help",
+    es: "Ayuda",
+    tr: "Yardım",
+    fi: "Apua",
+    fr: "Aide",
+    pt: "Ajuda",
+    sv: "Hjälp",
+    kk: "Көмек"
+}
 };
 
 function updateLanguage(lang) {
@@ -1269,9 +1536,11 @@ function updateLanguage(lang) {
       } else {
         el.textContent = translation;
       }
+        setInterval(updateloop, 5000)
     }
       vers = texts.versionTitle[lang] || "=2X2 МИНИ-КАРТА=";
 document.getElementById("minimap-title").textContent = vers;
+
   };
   applyText("hide-map", "hideMap");
   applyText("settings-map", "settings");
@@ -1287,24 +1556,37 @@ document.getElementById("minimap-title").textContent = vers;
   applyText("modeLabel", "modeLabel");
   applyText("versionLabel", "version");
   applyText("minimap-text", "emptyTemplates");
-  applyText("minimap-text", "openText");// теперь правильно
+  applyText("minimap-text", "openText");
+  applyText("gridLabelText", "showGrid");
+  applyText("helpButton");
+}
+const infoTextEl = document.getElementById("infoText");
+if (infoTextEl && texts.infoContent && texts.infoContent[lang]) {
+  infoTextEl.innerHTML = texts.infoContent[lang];
 }
 document.addEventListener("DOMContentLoaded", function () {
   const languageSelect = document.getElementById("languageSelect");
-  const savedLang = localStorage.getItem("minimapLang") || "ru";
-    let currentLang = savedLang;
+  const Lang = localStorage.getItem("minimapLang") || "ru";
   if (languageSelect) {
-    languageSelect.value = savedLang;
+    languageSelect.value = Lang;
+    updateLanguage(Lang);
     languageSelect.addEventListener("change", () => {
       const lang = languageSelect.value;
       localStorage.setItem("minimapLang", lang);
       updateLanguage(lang);
     });
   }
+    document.getElementById("infoButton").addEventListener("click", () => {
+  const lang = localStorage.getItem("minimapLang") || "ru";
+  updateLanguage(lang);
+  setInterval(updateloop, 5000)
+});
+});
     setTimeout(() => {
-    updateLanguage(savedLang);
+    updateLanguage(Lang);
   }, 100);
-});
 window.addEventListener("load", function () {
-  updateLanguage(savedLang);
+  updateLanguage(Lang);
 });
+setInterval(updateloop, 5000);
+updateloop();
