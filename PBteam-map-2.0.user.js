@@ -39,7 +39,7 @@ Number.prototype.between = function (a, b) {
   return this > min && this < max;
 };
 var autoColorEnabled = false;
-const MINIMAP_VERSION = "2.2.19.1";
+const MINIMAP_VERSION = "2.3.0.0";
 
 function startup() {
 document.addEventListener('keydown', function(e) {
