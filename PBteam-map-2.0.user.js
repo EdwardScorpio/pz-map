@@ -375,7 +375,7 @@ div.setAttribute('class', 'post block bc2');
 </style>
   <p>
 <span id="check-updates" style="cursor:pointer;user-select:none;background:#01796F;padding-left:4px;padding-right:4px;border-radius:4px;">Обновления</span>
-<span id="versionLabel" style="font-size:0.95em;color:#0fffff;background:Blue;padding-left:4px;padding-right:4px;border-radius:8px;">Версия: 2.2.19</span>
+<span id="versionLabel" style="font-size:0.95em;color:#0fffff;background:Blue;padding-left:4px;padding-right:4px;border-radius:8px;">Версия: 2.2.3.0.0</span>
 <p>
 <span id="settings-map-2" style="cursor:pointer;user-select:none;text-align:center;background:#003153;padding-left:4px;padding-right:4px;border-radius:4px;">Вернуться</span>
     </div>
