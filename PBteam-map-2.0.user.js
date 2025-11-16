@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Мини-карта 2x2 Pixel Battle Team Crew
 // @namespace    http://tampermonkey.net/
-// @version      2.2.19.1
+// @version      2.2.19.2
 // @description  Overlay-like tool for pixelzone.io
 // @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio. 2x2 Designed by MDOwlman.
 // @match        https://pixelzone.io/*
@@ -39,7 +39,7 @@ Number.prototype.between = function (a, b) {
   return this > min && this < max;
 };
 var autoColorEnabled = false;
-const MINIMAP_VERSION = "2.2.19.1";
+const MINIMAP_VERSION = "2.2.19.2";
 
 function startup() {
 document.addEventListener('keydown', function(e) {
@@ -383,6 +383,7 @@ div.setAttribute('class', 'post block bc2');
 `;
 
 document.body.appendChild(div);
+    addUpdateCheckListener();
 
     const Lang = localStorage.getItem("minimapLang") || "ru";
 const languageSelect = document.getElementById("languageSelect");
@@ -776,9 +777,9 @@ window.addEventListener('click', (event) => {
         map.releasePointerCapture && map.releasePointerCapture(ev.pointerId);
         map.style.cursor = "grab";
 
-        // Привязка к краям (порог 10px)
+        // Привязка к краям
         const r = map.getBoundingClientRect();
-        const TH = 10;
+        const TH = 40;
         const nearLeft = r.left <= TH;
         const nearRight = window.innerWidth - r.right <= TH;
         const nearBottom = window.innerHeight - r.bottom <= TH;
