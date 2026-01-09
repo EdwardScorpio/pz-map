@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Мини-карта 2x2 Pixel Battle Team Crew
 // @namespace    http://tampermonkey.net/
-// @version      2.2.19.2
+// @version      2.2.19.3
 // @description  Overlay-like tool for pixelzone.io
 // @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio. 2x2 Designed by MDOwlman.
 // @match        https://pixelzone.io/*
@@ -39,7 +39,7 @@ Number.prototype.between = function (a, b) {
   return this > min && this < max;
 };
 var autoColorEnabled = false;
-const MINIMAP_VERSION = "2.2.19.2";
+const MINIMAP_VERSION = "2.2.19.3";
 
 function startup() {
 document.addEventListener('keydown', function(e) {
@@ -79,7 +79,7 @@ pixelCounter.innerHTML = `
        fill="#aaaaaa"
        stroke="Whitw" stroke-width="4"
        stroke-linecap="round" stroke-linejoin="round"
-       style="margin: 2px; border-style:solid;border-width:2px">
+       style="margin: 2px; border-style:double;border-width:4px;font-family: 'Press Start 2P', cursive">
     <g>
       <g>
         <path d="M228.062,154.507h-34.938v65.631h34.938c18.094,0,32.814-14.72,32.814-32.814 C260.877,169.23,246.156,154.507,228.062,154.507z"/>
@@ -95,8 +95,8 @@ pixelCounter.style.right = "5px";           // отступ справа
 pixelCounter.style.bottom = "5px";          // отступ снизу
 pixelCounter.style.zIndex = "99999";         // поверх всего
 pixelCounter.style.background = "rgba(25, 25, 25, 1)"; // почти как фон миникарты
-pixelCounter.style.border = "1px solid rgba(255, 255, 255, 1)";
-pixelCounter.style.borderRadius = "10px";    // плавное скругление углов
+pixelCounter.style.border = "1px double rgba(255, 255, 255, 1)";
+pixelCounter.style.borderRadius = "0px";
 pixelCounter.style.padding = "8px 14px";     // внутренний отступ
 pixelCounter.style.color = "#fffff";        // слегка серый текст, не режет глаз
 pixelCounter.style.fontWeight = "2000";       // средне-жирный шрифт
@@ -104,12 +104,19 @@ pixelCounter.style.fontSize = "20px";
 pixelCounter.style.display = "flex";
 pixelCounter.style.alignItems = "center";
 pixelCounter.style.gap = "4px";              // отступ между иконкой и числом
-pixelCounter.style.boxShadow = "0 4px 12px rgba(0,0,0,0.3)";
+pixelCounter.style.boxShadow = "0px rgba(0,0,0,0.3)";
 pixelCounter.style.transition = "all 0.3s ease"; // плавная анимация
 pixelCounter.style.pointerEvents = "none";   // чтобы не мешал кликам по игре
 
 document.body.appendChild(pixelCounter);
-
+pixelCounter.addEventListener("click", () => {
+    updateloop(); // Запускаем твою функцию обновления данных (включая счётчик)
+    // Небольшая анимация "клик"
+    pixelCounter.style.transform = "scale(0.95)";
+    setTimeout(() => {
+        pixelCounter.style.transform = "scale(1)";
+    }, 150);
+});
 
 
 
@@ -138,6 +145,7 @@ document.body.appendChild(pixelCounter);
   window.image_list = [];
   counter = 0;
 
+
   //templates which are needed in the current area
   needed_templates = [];
   //Cachebreaker to force image refresh. Set it to eg. 1
@@ -145,241 +153,612 @@ document.body.appendChild(pixelCounter);
 var div = document.createElement('div');;
 div.setAttribute('class', 'post block bc2');
 
-    div.innerHTML = `
-       <style>
-    #not_Used{display:none !important}
-    </style>
-------- (ru) Увидел этот текст? Проверь интернет и скорость подключения<br>
--------,а может и сам сайт плохо работает.
--------(en) See this text? Check your internet connection speed<br>
-------- or maybe the site itself is having issues.
--------(tr) Bu metni gördünüz mü? İnternet bağlantınızı ve hızını kontrol edin<br>
--------veya site düzgün çalışmıyor olabilir.
--------(es) ¿Ves este texto? Revisa tu conexión a internet<br>
-------- o tal vez el sitio no funcione correctamente.
--------(fr) Vous voyez ce texte ? Vérifiez votre connexion internet<br>
-------- ou peut-être que le site a un problème.
--------(pt) Vê este texto? Verifica a tua ligação à internet<br>
-------- ou talvez o site não esteja a funcionar bem.
--------(sv) Ser du denna text? Kontrollera din internetanslutning<br>
-------- eller så fungerar inte webbplatsen korrekt.
--------(fi) Näetkö tämän tekstin? Tarkista internet-yhteytesi<br>
-------- tai ehkä sivusto ei toimi kunnolla.
--------(kz) Осы жазуды көрдің бе? Интернетке қосылуды тексер<br>-------немесе сайт дұрыс істемей жатқан шығар.⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-                                       ⢀⣠⡶⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⠀⠀⠀⢀⣤⠶⠋⣼⠁⠀⠀⠀⣀⣠⣤⣤⡶⠆⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣿⠀⠀⢀⡴⠋⠁⠀⣸⣥⡤⠶⠛⠉⠉⢀⣴⡯⠤⠶⠚⢫⡝⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⠏⢸⣇⡴⠋⠀⠀⠀⠀⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣄⠀⢠⡟⠀⠀⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣞⣁⣀⣀⣀⣀⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡟⣦⡞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠉⠉⠉⣉⡽⠟⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⣾⣉⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢷⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠛⢓⣲⣶⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢘⣷⣶⣶⣶⣶⣶⣶⣶⣦⣤⣤⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⠴⠖⠚⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⣿⣿⠷⠀⠀⠀⠀⠉⠉⠛⠿⢿⣿⣷⣦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠘⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⡆⠀⠀⠀⠀⢀⣀⣤⣄⣀⣤⠉⠉⠛⢷⡀⠀⠀⠀⠀⠀⠀⠀⠈⠳⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣤⡀⠀⠀⢀⣴⣿⣯⡶⢲⡍⠁⠀⠀⠀⠈⢷⡀⢰⣆⠀⠀⠸⣟⠒⠒⠛⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣾⣦⠦⢤⣙⡻⠿⢿⣽⠾⠇⠀⠀⠀⠀⠀⣬⣷⢸⣿⣿⣆⠀⢻⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⢀⣤⣆⡾⣫⢿⡄⠀⠀⠀⠀⠀⠀⠀⣻⣿⡿⣿⣿⣿⣿⣿⣿⣿⣿⣤⣰⠤⣄⡀⠀⢠⡄⢸⣿⣿⣿⣿⣿⠓⢾⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⢠⡶⠛⢻⠏⠀⠀⣾⠁⢀⣶⢛⣦⠀⠀⠀⣿⣿⡏⠉⣹⣟⣛⣻⣯⢿⡙⠿⣿⣿⣶⣿⣿⣶⣦⣿⣿⣿⣿⣿⣿⠀⠀⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⣼⠁⠀⣾⠀⠀⢰⡇⠀⡾⠁⠈⡿⠀⠀⣠⣽⣿⣇⠀⢻⣭⣿⣽⠟⣨⣷⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⡟⠀⢸⡇⠀⠀⣾⣿⢸⡇⠀⢸⡇⠀⢰⡿⠘⣷⢻⠀⠀⠀⣀⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⣧⠀⠘⣧⠀⠀⢳⣿⣾⠀⠀⢸⠁⠀⢸⡇⠀⣿⠛⣧⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⣿⣃⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠘⣧⣤⣿⣧⣶⣿⣿⣇⠀⠀⢸⣦⢀⣿⠀⢰⡏⣀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⣿⢭⣉⠛⠦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣷⣿⣿⣿⣾⣧⣀⣸⣿⣿⣿⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣰⣿⠉⠻⡷⡄⠈⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⢹⡿⣿⡿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣽⢾⣸⡶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠀⣿⣿⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠻⣄⠉⠓⠾⠿⣿⣿⣿⣿⣿⣿⣿⣿⣏⠻⣷⡝⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠁⢀⣷⡇⠀⢸⠓⠶⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⣷⣤⣀⠀⠀⠈⠹⠿⣿⣿⣿⣿⡟⠀⣿⠁⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⢸⣿⡇⠀⢸⠀⠀⠀⠙⠳⠶⣤⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣶⣶⣶⣶⣾⣿⣿⣿⡇⠀⣿⠂⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⢸⣿⠀⠀⣼⠀⢀⠀⠀⠀⠀⠀⠉⠙⠳⢤⣀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⢫⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣿⡀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⢸⢹⠀⠀⣿⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⣉⣻⠦⠄⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⢀⣠⢾⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⣾⡿⢀⡴⠋⠀⠀⠀⢀⡤⠀⠀⠀⣀⡴⠞⣉⣤⣶⣦⡘⠦⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⣿⣿⣿⣿⣿⣿⣿⣿⡿⢭⣿⣛⡛⢿⣿⣿⡿⠿⢿⢛⣛⣛⣯⣥⣾⡟⣻⠟⠛⠀⠀⠀⢀⡴⠋⠀⠀⣠⠞⣡⣴⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀
-⠀⠀⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠻⠃⠙⠻⢿⢿⣿⣿⣿⣷⠀⠀⢹⣿⡆⢻⣹⡇⣾⣿⣿⠟⠋⠀⠀⡾⢱⡏⠀⠀⢰⣯⡿⠋⠀⢀⡴⢋⣵⣾⣿⣿⣿⣿⣿⣿⡌⠉⠻⡄⠀⠀
-⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⠀⠀⠀⠀⠛⣿⣿⣿⣿⣿⣿⣷⣮⣿⡁⢸⣿⡇⠿⠋⠀⠀⣀⠀⢸⡇⠻⣄⣀⠀⠙⢁⣤⢖⡷⢋⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣄⣸⠃⠀⠀
-⠀⠀⠀⠀⠀⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡽⠀⠀⠀⠀⠀⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢸⢻⡇⠀⠀⠀⡼⠃⠀⠀⠙⠳⠮⣭⣝⡛⠛⡿⠋⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣯⡀⠀⠀
-⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠁⠀⠀⠀⠀⢰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣸⣸⡇⠀⢀⡾⠁⠀⠀⠀⠀⣀⣀⡀⢈⣙⣛⣛⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⠀⠀⠀⠀⠀⠀⠀⠀⠀
-
+div.innerHTML = `
 <style>
-  #minimapbg {
-    background: linear-gradient(to bottom, #dfdfdf, #9f9f9f);
-    border-radius: 20px 20px 20px 20px;
-    border: 2px solid black;
-    box-shadow: inset 0 0 4px #666, 0 4px 10px rgba(0, 0, 0, 0.5);
-    padding: 4px;
-  }
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-  #minimap-text,
-  #minimap-title {
-    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.5);
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.7);
-  }
+/* Применяем пиксельный шрифт ко всему */
+#minimapbg,
+#minimapbg *,
+#minimap-title,
+#minimap-text,
+#minimap-config span,
+#minimap_settings,
+#minimap_settings *,
+#infoButton,
+#check-updates,
+#settings-map-2,
+#languageLabel,
+#volumeLabel,
+#versionLabel,
+#languageSelect,
+#infoText,
+#infoContent {
+    font-family: 'Press Start 2P', cursive !important;
+    letter-spacing: 0 !important;
+    font-weight:normal
+}
 
-  #minimap-config,
-  #minimap_settings {
-    background: linear-gradient(to bottom, #dbdbdb, #b1b1b1);
+/* Остальные твои стили (шрифт и т.д.) остаются без изменений */
+#minimapbg,
+#minimapbg * {
+    font-family: 'Press Start 2P', cursive !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* Подгонка размеров — чтобы ничего не прыгало и не растягивалось */
+#minimap-title {
+    font-size: 16px !important;
+    line-height: 18px !important;
+    padding: 4px !important;
+        clip-path: polygon(
+        20px 0,
+        calc(100% - 20px) 0,
+        100% 20px,
+        100% 100%,
+        0 100%,
+        0 20px
+    );
+}
+
+#minimap-text {
+    font-size: 12px !important;
+    line-height: 18px !important;
+    padding: 2px 10px 2px 10px !important;
+}
+
+
+/* Переработанное меню настроек — в стиле основной панели */
+#settings-title {
+    background-color: #000;
+
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255,255,255,0.08) 0px,
+            rgba(255,255,255,0.08) 1px,
+            transparent 1px,
+            transparent 4px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(255,255,255,0.08) 0px,
+            rgba(255,255,255,0.08) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+
+    color: white;
+    box-shadow: inset 0px #000;
+    text-shadow: 1px 1px 0 #000;
+    border-radius: 0;
+    background-size: 6px 6px, 6px 6px, 48px 48px, 48px 48px;
     border: 2px solid #777;
-    border-radius: 12px;
-    box-shadow: inset 0 0 6px #666, 0 2px 6px rgba(0, 0, 0, 0.4);
+    border-radius: 0px;
+    box-shadow: inset 0 0 1px #666, 0 2px 2px rgba(0,0,0,0.4);
+    padding: 4px;
+    margin:4px;
+}
+#minimap_settings span,
+#minimap_settings select,
+#minimap_settings input[type="range"] {
+    background: black;
+    color: white;
+    border-radius: 0px;
+    border: 2px solid #777;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.3), inset 0 0 3px rgba(255,255,255,0.3);
+    cursor: pointer;
+    font-size: 16px;
+    text-shadow:0
+    transition: transform 0.1s;
+}
+#zoom-plus,
+#zoom-minus {
+    overflow: hidden;
+}
+
+#zoom-plus {
+    clip-path: polygon(
+        7px 0,
+        calc(100% - 7px) 0,
+        100% 7px,
+        100% 100%,
+        0 100%,
+        0 7px
+    );
+}
+#zoom-minus {
+    clip-path: polygon(
+        0 0,
+        100% 0,
+        100% calc(100% - 7px),
+        calc(100% - 7px) 100%,
+        6px 100%,
+        0 calc(100% - 7px)
+    );
+}
+
+#minimap_settings span:active {
+    transform: scale(0.97);
+}
+
+#languageSelect {
+    background: black;
+    color: white;
+    border: 2px solid #777;
+}
+
+#infoContent {
+    background: #eaeaea;
+    color: #333;
+    padding: 10px;
+    border-radius: 0px;
+    margin-top: 10px;
+    display: none;
+    text-align: left;
+    line-height: 1.5;
+}
+
+/* Твои оригинальные стили — полностью сохранены */
+#minimapbg {
+    background-color: #bcbcbc !important;
+
+    background-image:
+        /* Мелкая пиксельная сетка */
+        repeating-linear-gradient(
+            0deg,
+            rgba(0,0,0,0.10) 0px,
+            rgba(0,0,0,0.10) 1px,
+            transparent 1px,
+            transparent 5px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(0,0,0,0.10) 0px,
+            rgba(0,0,0,0.10) 1px,
+            transparent 1px,
+            transparent 5px
+        ),
+
+        /* Крупные эфирные блоки (2x2 вайб) */
+        repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 28px,
+            rgba(0,0,0,0.08) 28px,
+            rgba(0,0,0,0.08) 32px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent 0px,
+            transparent 28px,
+            rgba(0,0,0,0.08) 28px,
+            rgba(0,0,0,0.08) 32px
+        ),
+
+        /* Лёгкий диагональный эфирный шум */
+        repeating-linear-gradient(
+            45deg,
+            rgba(0,0,0,0.04) 0px,
+            rgba(0,0,0,0.04) 2px,
+            transparent 2px,
+            transparent 10px
+        );
+
+    background-size:
+        6px 6px,
+        6px 6px,
+        32px 32px,
+        32px 32px,
+        12px 12px;
+
+    background-position: 0 0;
+    border-radius:0;
+    border: 2px solid black;
+    box-shadow: inset 0 0 2px #666, 0 4px 10px rgba(0, 0, 0, 0.5);
     padding: 6px;
-  }
-   #minimap_settings button,
-  #minimap_settings span,
-  #minimap_settings select,
-  #minimap_settings input[type="range"] {
+}
+
+#minimap-text,
+#minimap-title {
+    box-shadow:0
+    text-shadow:0
+        clip-path: polygon(22px 0),
+        calc(100% - 22px) 0,
+        100% 22px,
+        100% 100%,
+        0 100%,
+        0 22px
+);
+}
+
+#minimap-config,
+#minimap_settings {
+    background-color: #bcbcbc !important;
+
+    background-image:
+        /* Мелкая пиксельная сетка */
+        repeating-linear-gradient(
+            0deg,
+            rgba(0,0,0,0.10) 0px,
+            rgba(0,0,0,0.10) 1px,
+            transparent 1px,
+            transparent 5px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(0,0,0,0.10) 0px,
+            rgba(0,0,0,0.10) 1px,
+            transparent 1px,
+            transparent 5px
+        ),
+
+        /* Крупные эфирные блоки (2x2 вайб) */
+        repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 2px,
+            rgba(0,0,0,0.08) 28px,
+            rgba(0,0,0,0.08) 32px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent 0px,
+            transparent 28px,
+            rgba(0,0,0,0.08) 28px,
+            rgba(0,0,0,0.08) 32px
+        ),
+
+        /* Лёгкий диагональный эфирный шум */
+        repeating-linear-gradient(
+            45deg,
+            rgba(0,0,0,0.04) 0px,
+            rgba(0,0,0,0.04) 2px,
+            transparent 2px,
+            transparent 10px
+        );
+
+    background-size:
+        6px 6px,
+        6px 6px,
+        32px 32px,
+        32px 32px,
+        2px 12px;
+
+    background-position: 0 0;
+    border-radius: 0px;
+    box-shadow: inset 0 0 6px #666, 0 2px 1px rgba(0, 0, 0, 0.4);
+    padding: 6px;
+}
+
+#minimap_settings button,
+#minimap_settings span,
+#minimap_settings select,
+#minimap_settings input[type="range"] {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 0 3px rgba(255, 255, 255, 0.3);
     transition: transform 0.1s ease, box-shadow 0.1s ease;
-  }
+}
 
-  #minimap_settings button:active,
-  #minimap_settings span:active,
-  #minimap_settings select:active,
-  #minimap_settings input[type="range"]:active {
+#minimap_settings button:active,
+#minimap_settings span:active {
     transform: scale(0.97);
     box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.5);
-  }
+}
+#settings-title {
+    background-color: #000;
 
-  #settings-title {
-    background: linear-gradient(to bottom, #333, #000);
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255,255,255,0.08) 0px,
+            rgba(255,255,255,0.08) 1px,
+            transparent 1px,
+            transparent 4px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(255,255,255,0.08) 0px,
+            rgba(255,255,255,0.08) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+
     color: white;
     box-shadow: inset 0 0 3px #000;
     text-shadow: 1px 1px 0 #000;
-    border-radius: 50px 50px 50px 50px;
-  }
+    border-radius: 0;
+}
 
-  #infoContent {
-    background: #eaeaea;
-    border: 1px solid #aaa;
-    border-radius: 6px;
-    box-shadow: inset 0 0 4px #bbb;
-    color: #333;
-  }
+/* === ПИКСЕЛЬНЫЙ СЛАЙДЕР ГРОМКОСТИ === */
+#volumeSlider {
+    -webkit-appearance: none;
+    appearance: none;
 
-  #volumeSlider,
-  #transparencySlider {
-    background: linear-gradient(to right, #eee, #ccc);
-    box-shadow: inset 0 0 2px #999;
-  }
+    width: 200px;
+    height: 8px;
 
-  #volumeSlider::-webkit-slider-thumb,
+    background: #000;
+    border: 1px solid #fff;
+    border-radius: 0;
 
-  #minimap-config span,
-  #autoColorButton,
-  #zoomDisplay {
+    outline: none;
+    cursor: pointer;
+}
+
+/* Chrome / Edge */
+#volumeSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+
+    width: 12px;
+    height: 20px;
+
+    background: #ff0000;
+    border: 2px solid #fff;
+    border-radius: 0;
+
+    cursor: pointer;
+}
+
+/* Firefox */
+#volumeSlider::-moz-range-thumb {
+    width: 12px;
+    height: 20px;
+
+    background: #ff0000;
+    border: 2px solid #fff;
+    border-radius: 0;
+
+    cursor: pointer;
+}
+
+#volumeSlider::-moz-range-track {
+    background: #000;
+    border: 2px solid #fff;
+    border-radius: 0;
+    height: 12px;
+}
+
+#volumeLabel,
+#volumeSlider {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+
+#minimap-config span,
+#autoColorButton,
+#zoomDisplay {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 0 3px rgba(255, 255, 255, 0.3);
     transition: transform 0.1s ease, box-shadow 0.2s ease;
-  }
+}
 
-  #minimap-config span:active,
-  #autoColorButton:active {
+#minimap-config span:active,
+#autoColorButton:active {
     transform: scale(0.96);
     box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.4);
-  }
+}
 
-  #zoomDisplay {
-    background: linear-gradient(to bottom, #333, #111);
+#zoomDisplay {
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgba(0,0,0,0.12) 0px,
+            rgba(0,0,0,0.12) 1px,
+            transparent 1px,
+            transparent 4px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(0,0,0,0.12) 0px,
+            rgba(0,0,0,0.12) 1px,
+            transparent 1px,
+            transparent 4px
+        );
     color: white;
-    padding: 2px 6px;
-    border-radius: 6px;
-    font-size: 0.8em;
+    padding: 6px;
+    border-radius: 0px;
+    font-size: 0.95em;
     text-align: center;
-  }
+}
+* {
+    font-family: 'Press Start 2P', cursive !important;}
+/* Палитра PixelZone — по центру снизу, ниже координат */
+div[class*="palette"],
+[class*="_palette-"] {
+    position: fixed !important;
+    bottom: 10px !important;     /* Ниже координат (координаты обычно на ~10-20px от низа) */
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important; /* Точная центровка по горизонтали */
+    z-index: 10000 !important;   /* Ниже мини-карты и её элементов */
+}
+
+/* Координаты — всегда поверх палитры */
+div[class*="coord"],
+span[class*="coord"],
+div[class*="coords"],
+div[class*="note"] {  /* Это блоки с координатами и количеством игроков */
+    z-index: 10050 !important;
+    pointer-events: none !important;
+}
+/* === ОСНОВНАЯ ПАНЕЛЬ === */
+#minimap_settings {
+background-color: #202020;
+
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255,255,255,0.08) 0px,
+            rgba(255,255,255,0.08) 1px,
+            transparent 4px,
+            transparent 4px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(255,255,255,0.08) 0px,
+            rgba(255,255,255,0.08) 1px,
+            transparent 4px,
+            transparent 4px
+        );
+
+    color: white;
+    box-shadow: inset 0;
+    text-shadow: 0 ;
+    border-radius: 0;
+    background-size: 8px 8px;
+    background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+}
+
+/* === КНОПКИ === */
+#infoButton,
+#check-updates,
+#settings-map-2 {
+    background: #111 !important;
+    color: #fff !important;
+    padding: 10px 10px !important;
+    margin: 2px !important;
+    border: none !important;
+    cursor: pointer;
+    user-select: none;
+    display: inline-block;
+    box-shadow:
+        inset 0 0 2px #444,
+        0 2px 4px rgba(0,0,0,.4);
+    clip-path: polygon(
+    16px 0,
+    calc(100% - 16px) 0,
+    100% 16px,
+
+    100% calc(100% - 16px),
+    calc(100% - 16px) 100%,
+    16px 100%,
+
+    0 calc(100% - 16px),
+    0 16px
+);
+}
+
+#check-updates {
+    background: #01796F !important;
+}
+
+#settings-map-2 {
+    background: #003153 !important;
+}
+
+#infoButton:active,
+#check-updates:active,
+#settings-map-2:active {
+    transform: scale(0.96);
+}
+
+/* === ИНФО-БЛОК === */
+#infoContent {
+    background: #ededed !important;
+    border-radius: 0px;
+    color: #333;
+    font-size:12px;
+    letter-spacing:0.3px;
+    border: 4px dashed #999 !important;
+    padding: 8px !important;
+    font-size:12px;
+    letter-spacing:0.3px;
+    margin-top: 8px !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* === ЯЗЫК === */
+#languageLabel {
+    background: purple !important;
+    color: white !important;
+    padding: 4px 6px !important;
+    margin: 6px !important;
+    display: inline-block;
+}
+
+#languageSelect {
+    background: #222 !important;
+    color: #fff !important;
+    border: 2px solid #000 !important;
+    padding: 4px !important;
+    outline: none !important;
+}
+
+/* === ВЕРСИЯ === */
+#versionLabel {
+    background: blue !important;
+    color: #0fffff !important;
+    padding: 4px 6px !important;
+    box-shadow: inset 0 0 2px #004;
+}
+
+
 </style>
 
-<!-- Подключение стандартной HTML-структуры карты без изменений -->
-<div id="minimapbg" style="background-color:rgba(202,202,202,100%); border-radius:10px 10px 10px 10px; position:absolute;right:5px; bottom:0; z-index:1;border-style:solid;border-width:2px 2px 2px 2px;border-color:black">
-    <div class="posy unselectable" id="posyt" style="background-size:100%;font-size:1.1em; color:#fff; text-align:center; line-height:18px; vertical-align:middle; width:auto; height:auto; padding:2px 2px 3px 2px;">
-      <div id="minimap-text" style="background:DimGray;padding-left:10px;padding-right:10px;padding-top:2px;padding-bottom:2px;border-radius:10px 10px 0 0 ;user-select:none;"></div>
-      <div id="minimap-title" style="line-height:17px;font-size:1.05em;background:Black;Border-radius:10px 10px 0 0;user-select:none;padding:6px 6px 4px 6px;">=2X2 МИНИ-КАРТА=</div>
+<div id="minimapbg" style="background-color:rgba(202,202,202,100%); border-radius:0px; position:absolute;right:5px; bottom:0; z-index:1;border-style:double;border-width:6px 6px 6px 6px;border-color:black">
+    <div class="posy unselectable" id="posyt" style="background-size:100%; color:#fff; text-align:center; width:auto; height:auto; padding:2px 2px 3px 2px;">
+      <div id="minimap-text" style="background:DimGray;padding-left:10px;padding-right:10px;padding-top:2px;padding-bottom:2px;border-radius:0px ;user-select:none;"></div>
+      <div id="minimap-title" style="background:Black;border-radius:0;;padding-left:10px;padding-right:10px;user-select:none;">=2X2 МИНИ-КАРТА=</div>
       <div id="minimap-box" style="position:relative;width:390px;height:280px">
         <canvas id="minimap" style="width: 100%; height: 100%;z-index:1;position:absolute;top:0;left:0;"></canvas>
         <canvas id="minimap-board" style="width: 100%; height: 100%;z-index:2;position:absolute;top:0;left:0;"></canvas>
         <canvas id="minimap-cursor" style="width: 100%; height: 100%;z-index:3;position:absolute;top:0;left:0;"></canvas>
       </div>
-<div id="minimap-config" style="line-height:32px;border-style:solid;border-width:2px 2px 2px 2px;border-color:Gray;border-radius:5px 5px 10px 10px;background:#999999;padding:3px 1px 3px 1px;margin:3px 3px 1px 3px">
-  <span id="hide-map" style="cursor:pointer;user-select:none;font-size:0.95em;background:#1164B4;padding-left:4px;padding-right:4px;border-radius:8px 0 0 8px;margin-left:4px;margin-right:0px;border-style:solid;border-width:1px 2px 4px 2px;border-color:#004292">Скрыть</span>
-  <span id="settings-map" style="cursor:pointer;user-select:none;font-size:0.95em;background:Teal;padding-left:4px;padding-right:4px;border-radius:0 8px 8px 0;margin-right:2px;border-style:solid;border-width:1px 2px 4px 2px;border-color:#007070">Настройки</span>
-  <span id="zoom-plus" style="cursor:pointer;font-weight:bold;font-size:0.95em;user-select:none;background:Crimson;padding-left:0;padding-right:0;border-corner-shape:bevel;border-radius:12px 12px 2px 2px;border-style:solid;border-width:1px 2px 4px 2px;border-color:#BA021A";margin-left:0>&nbsp;+&nbsp;</span>
-</span>
-  <span id="zoom-minus" style="cursor:pointer;font-weight:bold;font-size:0.95em;user-select:none;background:Blue;padding-left:0;padding-right:0;border-corner-shape:bevel;border-radius:2px 2px 12px 12px;border-style:solid;border-width:1px 2px 4px 2px;border-color:#0000AA";margin-left:0>&nbsp;-&nbsp;</span>
-  <span id="autoColorButton" style="cursor:pointer;font-weight:bold;font-size:0.95em; padding:0 6px 0 6px;border-radius:8px;background:black;margin-left:0;margin-right:2px;text-transform:none;border-style:solid;border-width:3px 3px 3px 3px;border-color:Slategray;transition: background-color 0.2s ease, color 0.8s ease;">Авто-цвет</button>
-  </label>
-</div>
+      <div id="minimap-config" style="line-height:36px;border-style:solid;border-width:2px;border-color:Gray;border-radius:0px;background:#444444;padding:3px;margin:2px 4px 2px 2px">
+        <span id="hide-map" style="cursor:pointer;user-select:none;font-weight:normal;font-size:0.75em;background:#1164B4;padding-left:2px;padding-right:2px;;padding-top:6px;padding-bottom:6px;border-radius:0;margin-left:-2px;margin-right:-14px;border-style:dotted;border-width:2px 0;border-color:#003181">Скрыть</span>
+        <span id="settings-map" style="cursor:pointer;user-select:none;font-weight:normal;font-size:0.75em;background:Teal;padding-left:2px;padding-right:2px;;padding-top:6px;padding-bottom:6px;border-radius:0;margin-right:-13px;border-style:dashed;border-width:2px 0;border-color:#006060">Настройки</span>
+        <span id="zoom-plus" style="cursor:pointer;font-weight:normal;font-size:0.75em;user-select:none;background:Crimson;padding-left:1px;;padding-top:8px;padding-bottom:8px;padding-right:1px;border-radius:0px;border-style:solid;border-width:0 2px 2px ;border-color:#BA021A;margin-left:0;margin-right:-7px">+</span>
+        <span id="zoom-minus" style="cursor:pointer;font-weight:normal;font-size:0.75em;user-select:none;background:Blue;padding-left:1px;;padding-top:8px;padding-bottom:8px;padding-right:1px;border-radius:0px;border-style:solid;border-width:2px 2px 0;border-color:#0000AA;margin-left:-7px;margin-right:-6px">-</span>
+       <span id="autoColorButton" style="cursor:pointer;font-weight:normal;font-size:0.75em;padding:0 6px 0 6px;border-radius:0;background:black;;padding-top:8px;padding-bottom:8px;margin-left:-6px;margin-right:0px;border-style:double;border-width:4px;border-color:Slategray;transition: background-color 0.4s ease, color 0.8s ease;">Авто-цвет</span>
+      </div>
     </div>
-<div id="minimap_settings" style="background-size:100%;border-radius:10px 10px 10px 10px; width:auto; height:auto; text-align:center; display:none;padding: 4px 4px 4px 4px;">
-      <div id="settings-title" style="line-height:16px;font-size:0.95em;user-select:none;padding:4px 0 4px 0;background:Black;border-radius:10px 10px 5px 5px">Настройки Мини-Карты</div>
+    <div id="minimap_settings" style="background-size:100%;border-radius:0px; width:auto; height:auto; text-align:center; display:none;padding: 4px 4px 4px 4px;">
+      <div id="settings-title">Настройки Мини-Карты</div>
       <p>
-      </figure style="background:Black;border-radius:2px;">
-      <div id="infoButton" style="display:inline-block; background-color:black; color:white; padding:2px 4px 4px 2px;margin:4px 20px 4px 0px border:none; border-radius:4px; cursor:pointer; font-size:0.95em;">
-  Информация
-</div>
-<div id="infoContent" style="display:none; margin-top:10px; padding:10px; background-color:#f1f1f1; border:1px solid #ccc; border-radius:4px; font-size:0.95em; color:#333;">
-<div id="infoText">
-<p> Привет фанат телеканала 2х2!
-<p>Данная мини-карта сделана специально для тебя!
-  <p> Данная мини-карта была создана благодаря следующим людям:
-  <p> Генерал Пиксельных войн Edward Scorpio
-  <p> Генерал Пиксельных войн Ultimate Pekar
-  <p> Генерал-Комендаторе MDOwlman.
-  <p> Данная карта была официально создана 18 сентября 2024 года.
-  </div>
-  <img class="background-image"
-  src="data:image/svg+xml;charset=UTF-8,%3c?xml version='1.0' encoding='UTF-8'?%3e%3c!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3e%3csvg xmlns='http://www.w3.org/2000/svg' version='1.1' width='250px' height='108px' style='shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd' xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3cg%3e%3cpath style='opacity:1' fill='%23020202' d='M -0.5,-0.5 C 82.8333,-0.5 166.167,-0.5 249.5,-0.5C 249.5,35.5 249.5,71.5 249.5,107.5C 166.167,107.5 82.8333,107.5 -0.5,107.5C -0.5,71.5 -0.5,35.5 -0.5,-0.5 Z'/%3e%3c/g%3e%3cg%3e%3cpath style='opacity:1' fill='%238a8a8a' d='M 76.5,24.5 C 59.5,24.5 42.5,24.5 25.5,24.5C 25.5,29.1667 25.5,33.8333 25.5,38.5C 24.5128,33.6946 24.1795,28.6946 24.5,23.5C 42.008,23.17 59.3414,23.5033 76.5,24.5 Z'/%3e%3c/g%3e%3cg%3e%3cpath style='opacity:1' fill='%23fbfbfb' d='M 76.5,24.5 C 79.9875,25.1434 82.4875,27.1434 84,30.5C 84.4998,40.828 84.6665,51.1613 84.5,61.5C 69.8333,61.5 55.1667,61.5 40.5,61.5C 39.5318,63.6074 39.1984,65.9407 39.5,68.5C 54.5,68.5 69.5,68.5 84.5,68.5C 84.5,73.1667 84.5,77.8333 84.5,82.5C 64.8333,82.5 45.1667,82.5 25.5,82.5C 25.5,73.1667 25.5,63.8333 25.5,54.5C 26.1434,51.0125 28.1434,48.5125 31.5,47C 44.1623,46.5001 56.8289,46.3334 69.5,46.5C 69.5,43.8333 69.5,41.1667 69.5,38.5C 54.8333,38.5 40.1667,38.5 25.5,38.5C 25.5,33.8333 25.5,29.1667 25.5,24.5C 42.5,24.5 59.5,24.5 76.5,24.5 Z'/%3e%3c/g%3e%3cg%3e%3cpath style='opacity:1' fill='%23fbfbfb' d='M 223.5,68.5 C 223.5,73.1667 223.5,77.8333 223.5,82.5C 203.833,82.5 184.167,82.5 164.5,82.5C 164.334,72.4944 164.5,62.4944 165,52.5C 166.48,49.1828 168.98,47.1828 172.5,46.5C 184.833,46.5 197.167,46.5 209.5,46.5C 209.806,43.6146 209.473,40.9479 208.5,38.5C 193.833,38.5 179.167,38.5 164.5,38.5C 164.5,33.5 164.5,28.5 164.5,23.5C 181.837,23.3334 199.17,23.5001 216.5,24C 219.583,24.786 221.749,26.6193 223,29.5C 223.5,39.828 223.666,50.1613 223.5,60.5C 208.833,60.5 194.167,60.5 179.5,60.5C 179.5,63.1667 179.5,65.8333 179.5,68.5C 194.167,68.5 208.833,68.5 223.5,68.5 Z'/%3e%3c/g%3e%3cg%3e%3cpath style='opacity:1' fill='%23aaaaaa' d='M 108.5,29.5 C 103.305,29.1795 98.3054,29.5128 93.5,30.5C 92.9569,30.44 92.6236,30.1067 92.5,29.5C 97.9864,28.1853 103.32,28.1853 108.5,29.5 Z'/%3e%3c/g%3e%3cg%3e%3cpath style='opacity:1' fill='%23a7a7a7' d='M 138.5,29.5 C 143.68,28.1853 149.014,28.1853 154.5,29.5C 154.376,30.1067 154.043,30.44 153.5,30.5C 148.695,29.5128 143.695,29.1795 138.5,29.5 Z'/%3e%3c/g%3e%3cg%3e%3cpath style='opacity:1' fill='%23f8f8f8' d='M 108.5,29.5 C 113.839,34.1727 118.839,39.1727 123.5,44.5C 128.881,39.7852 133.881,34.7852 138.5,29.5C 143.695,29.1795 148.695,29.5128 153.5,30.5C 146.695,38.474 139.695,46.3074 132.5,54C 139.685,61.6837 146.685,69.517 153.5,77.5C 148.695,78.4872 143.695,78.8205 138.5,78.5C 133.881,73.2148 128.881,68.2148 123.5,63.5C 118.839,68.8273 113.839,73.8273 108.5,78.5C 103.305,78.8205 98.3054,78.4872 93.5,77.5C 101.018,70.1473 108.018,62.314 114.5,54C 108.047,45.7117 101.047,37.8783 93.5,30.5C 98.3054,29.5128 103.305,29.1795 108.5,29.5 Z'/%3e%3c/g%3e%3cg%3e%3cpath style='opacity:1' fill='%23767676' d='M 208.5,38.5 C 209.473,40.9479 209.806,43.6146 209.5,46.5C 197.167,46.5 184.833,46.5 172.5,46.5C 184.322,45.5049 196.322,45.1716 208.5,45.5C 208.5,43.1667 208.5,40.8333 208.5,38.5 Z'/%3e%3c/g%3e%3cg%3e%3cpath style='opacity:1' fill='%233b3b3b' d='M 40.5,61.5 C 40.5,63.5 40.5,65.5 40.5,67.5C 55.3428,67.1707 70.0095,67.504 84.5,68.5C 69.5,68.5 54.5,68.5 39.5,68.5C 39.1984,65.9407 39.5318,63.6074 40.5,61.5 Z'/%3e%3c/g%3e%3cg%3e%3cpath style='opacity:1' fill='%239e9e9e' d='M 93.5,77.5 C 98.3054,78.4872 103.305,78.8205 108.5,78.5C 103.32,79.8147 97.9864,79.8147 92.5,78.5C 92.6236,77.8933 92.9569,77.56 93.5,77.5 Z'/%3e%3c/g%3e%3cg%3e%3cpath style='opacity:1' fill='%23a3a3a3' d='M 153.5,77.5 C 154.289,77.7828 154.956,78.2828 155.5,79C 149.651,79.8184 143.985,79.6517 138.5,78.5C 143.695,78.8205 148.695,78.4872 153.5,77.5 Z'/%3e%3c/g%3e%3cg%3e%3cpath style='opacity:1' fill='%23959595' d='M 25.5,54.5 C 25.5,63.8333 25.5,73.1667 25.5,82.5C 45.1667,82.5 64.8333,82.5 84.5,82.5C 64.6736,83.4971 44.6736,83.8305 24.5,83.5C 24.1729,73.6522 24.5062,63.9856 25.5,54.5 Z'/%3e%3c/g%3e%3cg%3e%3cpath style='opacity:1' fill='%23898989' d='M 223.5,68.5 C 224.487,73.3054 224.821,78.3054 224.5,83.5C 204.326,83.8305 184.326,83.4971 164.5,82.5C 184.167,82.5 203.833,82.5 223.5,82.5C 223.5,77.8333 223.5,73.1667 223.5,68.5 Z'/%3e%3c/g%3e%3c/svg%3e ");
-  " alt="Фоновое изображение">
-  </div>
-  <p>
-    <span id="languageLabel" style="user-select: none; padding: 0 4px 0 4px;margin:20px 40px 20px 30px font-size:0.95em; background:DarkGrey; border-radius:4px;">
-    Язык&nbsp;
-  </span>
-  <select id="languageSelect" style="margin-left:6px; outline:0; font-family:Nunito,sans-serif; border-radius:5px;">
-    <option value="ru">🇷🇺 Русский</option>
-    <option value="en">🇬🇧 English</option>
-    <option value="es">🇪🇸 Español</option>
-    <option value="tr">🇹🇷 Türkçe</option>
-    <option value="fi">🇫🇮 Suomi</option>
-    <option value="fr">🇫🇷 Français</option>
-    <option value="pt">🇵🇹 Português</option>
-    <option value="sv">🇸🇪 Svenska</option>
-    <option value="kk">🇰🇿 Қазақша</option>
-  </select>
-  <p>
-      <span id="volumeLabel" style="font-size:0.9em; color:#AAAAAa;background-color:NAVY;padding:4px 2px 4px 2px;border-radius:4px">Звук:</span>
-<input type="range" id="volumeSlider" min="0" max="100" value="100" style="text-align:center; width:200px; height:4px; border-radius:5px;appearance: none; outline: none;">
-<style>
-  /* Стиль для контейнера ползунка */
-  #volumeSlider {
-    -webkit-appearance: none; /* Для Webkit-браузеров */
-    width: 40px;              /* Ширина ползунка */
-    height: 12px;               /* Высота дорожки */
-    background: #ffffff;         /* Цвет фона дорожки */
-    border-radius: 3px;       /* Скругление дорожки */
-    outline: none;             /* Убираем обводку */
-    cursor: pointer;          /* Указатель-курсор при наведении */
-  }
-
-  /* Стиль для бегунка ползунка */
-  #volumeSlider::-webkit-slider-thumb {
-    -webkit-appearance: none; /* Для Webkit-браузеров */
-    width: 9px;              /* Ширина бегунка */
-    height: 18px;             /* Высота бегунка */
-    background:FireBrick;      /* Цвет бегунка */
-    border-radius: 2px;       /* Круглый бегунок */
-    cursor: pointer;          /* Указатель-курсор */
-    border: none;              /* Без обводки */
-  }
-
-  #volumeSlider::-webkit-slider-runnable-track {
-    height: 18px;
-    width: 40px;
-    background:LightCoral;
-    border-radius: 1px;
-  }
-</style>
-  <p>
-<span id="check-updates" style="cursor:pointer;user-select:none;background:#01796F;padding-left:4px;padding-right:4px;border-radius:4px;">Обновления</span>
-<span id="versionLabel" style="font-size:0.95em;color:#0fffff;background:Blue;padding-left:4px;padding-right:4px;border-radius:8px;">Версия: 2.2.19</span>
-<p>
-<span id="settings-map-2" style="cursor:pointer;user-select:none;text-align:center;background:#003153;padding-left:4px;padding-right:4px;border-radius:4px;">Вернуться</span>
+      <div id="infoButton" style="display:inline-block; background-color:black; color:white; padding:4px 4px 4px 4px;margin:-2px 10px -2px 4px; border:none; border-radius:0px; cursor:pointer;">
+        Информация
+        <p>
+      </div>
+      <div id="infoContent" style="display:none; margin-top:10px; padding:10px; background-color:#f1f1f1; border:4px dashed #cccbba; border-radius:0px; color:#333;">
+        <div id="infoText" style="#infoContent,box-shadow: none;text-shadow: none;">
+          <p>Привет фанат телеканала 2х2!</p>
+          <p>Данная мини-карта сделана специально для тебя!</p>
+          <p>Данная мини-карта была создана благодаря следующим людям:</p>
+          <p>Генерал Пиксельных войн Edward Scorpio</p>
+          <p>Генерал Пиксельных войн Ultimate Pekar</p>
+          <p>Генерал-Комендаторе MDOwlman.</p>
+          <p>Данная карта была официально создана 18 сентября 2024 года.</p>
+        </div>
+      </div>
+      <p>
+      <span id="languageLabel" style="user-select: none; padding: 4px 4px 4px 4px;margin:10px 10px 10px 10px; background:Purple; border-radius:0px;">
+        Язык&nbsp;
+      </span>
+      <select id="languageSelect" style="margin-left:6px; outline:0; border-radius:0px;">
+        <option value="ru">🇷🇺 Русский</option>
+        <option value="en">🇬🇧 English</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="tr">🇹🇷 Türkçe</option>
+        <option value="fi">🇫🇮 Suomi</option>
+        <option value="fr">🇫🇷 Français</option>
+        <option value="pt">🇵🇹 Português</option>
+        <option value="sv">🇸🇪 Svenska</option>
+        <option value="kk">🇰🇿 Қазақша</option>
+      </select>
+      <p>
+        <span id="volumeLabel" style="color:#FFFFFF;background-color:NAVY;padding:6px ;margin:10px;border-radius:0px">Звук</span>
+        <input type="range" id="volumeSlider" min="0" max="100" value="100">
+      </p>
+      <p>
+        <span id="check-updates" style="cursor:pointer;user-select:none;background:#01796F;padding-left:4px;padding-right:4px;margin:20px 20px 20px 20px;border-radius:0px;">Обновления</span>
+        <span id="versionLabel" style="color:#0fffff;background:Blue;padding-left:4px;padding-right:4px;border-radius:0px;">Версия: 2.2.19.3</span>
+      </p>
+      <p>
+        <span id="settings-map-2" style="cursor:pointer;user-select:none;text-align:center;background:#003153;padding-left:6px;padding-right:6px;border-radius:0px;margin:6px;">Вернуться</span>
     </div>
-  </div>
+</div>
 `;
 
 document.body.appendChild(div);
@@ -607,7 +986,7 @@ helpButton.style.zIndex = '10001';
 helpButton.style.background = '#888888';  // Полностью непрозрачный синий
 helpButton.style.color = 'white';
 helpButton.style.padding = '8px 8px';
-helpButton.style.borderRadius = '5px';
+helpButton.style.borderRadius = '0px';
 helpButton.style.border = '2px solid #ffffff';
 helpButton.style.cursor = 'pointer';
 helpButton.style.fontSize = '22px';
@@ -633,8 +1012,8 @@ helpModal.style.left = '50%';
 helpModal.style.transform = 'translate(-50%, -50%)';
 helpModal.style.background = '#ffffff';
 helpModal.style.padding = '24px';
-helpModal.style.borderRadius = '10px';
-helpModal.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+helpModal.style.borderRadius = '0px';
+helpModal.style.boxShadow = '0px 2px rgba(0,0,0,0.3)';
 helpModal.style.zIndex = '10002';
 helpModal.style.maxWidth = '600px';
 helpModal.style.overflowY = 'auto';
@@ -948,14 +1327,14 @@ function updatePixelCounter() {
 function updateloop() {
     if (!toggle_show) return;
 
-    // Здесь мы напрямую определяем template_list, вместо загрузки из файла
+   // Здесь мы напрямую определяем template_list, вместо загрузки из файла
  window.template_list = {
         "Map 1": {
-           name: "https://i.ibb.co/GBhRrc1/dither-it-2x2-map3.png",
+           name: "https://i.ibb.co/qhMDfkx/2x2BIG.png",
             x: -4096,
             y: -4096,
-            width: 2423,
-            height: 5268
+            width: 1101,
+            height: 1009
         },
         "Map 2": {
             name: "https://i.ibb.co/d4Dmz2D0/arstotzka-turkey-newest.png",
@@ -985,6 +1364,55 @@ function updateloop() {
         width: 128,
         height: 129
          },
+             "KEKISTAN": {
+        name: "https://i.ibb.co/3mJQ7MfP/KEKI.png",
+        x: 919,
+        y: -1044,
+        width: 592,
+        height: 329
+                  },
+                  "KEKISTANI": {
+        name: "https://i.ibb.co/WvLFJ8jY/STAN.png",
+        x: 1511,
+        y: -881,
+        width: 170,
+        height: 166
+         },
+     "NEWEST" :{
+         name: "https://i.ibb.co/PGWm0BKY/dither-it-image-7.png",
+         x: 1511,
+         y: -881,
+         width: 170,
+         height: 166
+     },
+          "Chile" :{
+         name: "https://i.ibb.co/s9RWvsDC/Chile.png",
+         x: -3000,
+         y: -4096,
+         width: 681,
+         height: 243
+     },
+           "2x2=4" :{
+         name: "https://i.ibb.co/MkdTGGLp/01-JCYJDF-2x2.png",
+         x: -4096,
+         y: -2224,
+         width:1649,
+         height:3435
+             },
+     "2x2=42" :{
+         name: "https://i.ibb.co/270Xtgw9/02-JCYJDF-2x2.png",
+         x: -2447,
+         y: -2224,
+         width:1650,
+         height:3435
+             },
+          "NEWEST" :{
+         name: "https://i.ibb.co/ZR17xqtt/Yfit-hflbj.png",
+         x: -3408,
+         y: -2589,
+         width:186,
+         height: 201
+     },
     };
     if (!toggle_follow) getCenter();
 
@@ -1360,22 +1788,22 @@ function addUpdateCheckListener() {
 const texts = {
   hideMap: {
     ru: "Скрыть", en: "Hide", es: "Ocultar", tr: "Gizle", fi: "Piilota",
-    fr: "Cacher", pt: "Ocultar", sv: "Dölj", kk: "Жасыру"
+    fr: "Сeler", pt: "Ocultar", sv: "Dölj", kk: "Жасыру"
   },
   settings: {
     ru: "Настройки", en: "Settings", es: "Ajustes", tr: "Ayarlar", fi: "Asetukset",
-    fr: "Paramètres", pt: "Configurações", sv: "Inställningar", kk: "Баптаулар"
+    fr: "Réglage", pt: "Ajustar", sv: "Justera", kk: "Орнату"
   },
   openText: {
     ru: "ОТКРЫТЬ МИНИ-КАРТУ", en: "OPEN MINIMAP", es: "ABRIR MINIMAPA", tr: "MİNİ HARİTA AÇ", fi: "AVAA PIIRROS",
     fr: "OUVRIR MINICARTE", pt: "ABRIR MINIMAPA", sv: "ÖPPNA MINIKARTA", kk: "МИНИ-КАРТАНЫ АШУ"
   },
   autoColorOn: {
-    ru: "Aвто-цвет", en: "Auto-Color", es: "Auto-Color", tr: "Otomatik Renk", fi: "Autoväri",
+    ru: "Aвто-цвет", en: "Auto-Color", es: "Auto-Color", tr: "Otomat-Renk", fi: "Autoväri",
     fr: "Auto-couleur", pt: "Auto-Cor", sv: "Auto-färg", kk: "Авто-түстер"
   },
   autoColorOff: {
-    ru: "Авто-цвет", en: "Auto-Color", es: "Auto-Color", tr: "Otomatik Renk", fi: "Autoväri",
+    ru: "Авто-цвет", en: "Auto-Color", es: "Auto-Color", tr: "Otomat-Renk", fi: "Autoväri",
     fr: "Auto-couleur", pt: "Auto-Cor", sv: "Auto-färg", kk: "Авто-түстер"
   },
   back: {
@@ -1504,15 +1932,15 @@ const texts = {
     fi: "Zoom", fr: "Zoom", pt: "Zoom", sv: "Zoom", kk: "Масштаб"
     },
     helpContent: {
-  ru: "<h2>Полезная информация о мини-карте</h2><p>Мини-карта для Pixel Battle Team Crew в pixelzone.io.</p><p><b>Инструкции:</b> Установи Tampermonkey, добавь скрипт. Шаблоны загружаются автоматически.</p><p><b>Клавиши:</b><ul><li>Пробел: Показать/скрыть карту (обновляет шаблоны).</li><li>QERTYUIOP FGHJKLZ: Выбор цвета.</li><li>+/- (numpad или =/-): Масштаб.</li><li>0: Авто-выбор цвета.</li><li>9: Проверить обновления.</li></ul></p><p>Карта стартует скрытой — открой её пробелом. Благодарности: Edward Scorpio, Ultimate Pekar, MDOwlman. Создана 18.09.2024.</p>",
-  en: "<h2>Useful Minimap Info</h2><p>Minimap for Pixel Battle Team Crew on pixelzone.io.</p><p><b>Instructions:</b> Use Tampermonkey to install the script. Templates load automatically.</p><p><b>Keys:</b><ul><li>Space: Show/hide map (reloads templates).</li><li>QERTYUIOP FGHJKLZ: Select color.</li><li>+/- (numpad or =/-): Zoom.</li><li>0: Toggle auto-color.</li><li>9: Check updates.</li></ul></p><p>Map starts hidden — open with space. Thanks to: Edward Scorpio, Ultimate Pekar, MDOwlman. Created 09/18/2024.</p>",
-  es: "<h2>Información útil del minimapa</h2><p>Minimapa para Pixel Battle Team Crew en pixelzone.io.</p><p><b>Instrucciones:</b> Usa Tampermonkey para instalar el script. Las plantillas se cargan automáticamente.</p><p><b>Teclas:</b><ul><li>Espacio: Mostrar/ocultar mapa (recarga plantillas).</li><li>QERTYUIOP FGHJKLZ: Seleccionar color.</li><li>+/- (numpad o =/-): Zoom.</li><li>0: Alternar auto-color.</li><li>9: Verificar actualizaciones.</li></ul></p><p>El mapa inicia oculto — ábrelo con espacio. Gracias a: Edward Scorpio, Ultimate Pekar, MDOwlman. Creado el 18/09/2024.</p>",
-  tr: "<h2>Yararlı Minimapa Bilgileri</h2><p>Pixel Battle Team Crew için pixelzone.io minimapası.</p><p><b>Talimatlar:</b> Tampermonkey kullanarak script'i yükleyin. Şablonlar otomatik yüklenir.</p><p><b>Tuştar:</b><ul><li>Boşluk: Haritayı göster/gizle (şablonları yeniler).</li><li>QERTYUIOP FGHJKLZ: Renk seç.</li><li>+/- (numpad veya =/-): Yakınlaştır.</li><li>0: Otomatik renk değiştir.</li><li>9: Güncellemeleri kontrol et.</li></ul></p><p>Harita gizli başlar — boşlukla aç. Teşekkürler: Edward Scorpio, Ultimate Pekar, MDOwlman. Oluşturuldu: 18.09.2024.</p>",
-  fi: "<h2>Hyödyllistä minimap-tietoa</h2><p>Minimappi Pixel Battle Team Crew'lle pixelzone.io:ssa.</p><p><b>Ohjeet:</b> Asenna Tampermonkeyllä scripti. Mallit latautuvat automaattisesti.</p><p><b>Näppäimet:</b><ul><li>Välilyönti: Näytä/piilota kartta (päivittää mallit).</li><li>QERTYUIOP FGHJKLZ: Valitse väri.</li><li>+/- (numpad tai =/-): Zoomaa.</li><li>0: Vaihda automaattinen väri.</li><li>9: Tarkista päivitykset.</li></ul></p><p>Kartta alkaa piilotettuna — avaa välilyönnillä. Kiitos: Edward Scorpio, Ultimate Pekar, MDOwlman. Luotu 18.09.2024.</p>",
-  fr: "<h2>Informations utiles sur la minicarte</h2><p>Minicarte pour Pixel Battle Team Crew sur pixelzone.io.</p><p><b>Instructions :</b> Utilisez Tampermonkey pour installer le script. Les modèles se chargent automatiquement.</p><p><b>Touches :</b><ul><li>Espace : Afficher/masquer la carte (recharge les modèles).</li><li>QERTYUIOP FGHJKLZ : Sélectionner la couleur.</li><li>+/- (numpad ou =/-) : Zoom.</li><li>0 : Basculer auto-couleur.</li><li>9 : Vérifier les mises à jour.</li></ul></p><p>La carte commence masquée — ouvrez-la avec espace. Merci à : Edward Scorpio, Ultimate Pekar, MDOwlman. Créée le 18/09/2024.</p>",
-  pt: "<h2>Informações úteis do minimapa</h2><p>Minimapa para Pixel Battle Team Crew no pixelzone.io.</p><p><b>Instruções:</b> Use Tampermonkey para instalar o script. Modelos carregam automaticamente.</p><p><b>Teclas:</b><ul><li>Espaço: Mostrar/ocultar mapa (recarrega modelos).</li><li>QERTYUIOP FGHJKLZ: Selecionar cor.</li><li>+/- (numpad ou =/-): Zoom.</li><li>0: Alternar auto-cor.</li><li>9: Verificar atualizações.</li></ul></p><p>O mapa inicia oculto — abra com espaço. Obrigado a: Edward Scorpio, Ultimate Pekar, MDOwlman. Criado em 18/09/2024.</p>",
-  sv: "<h2>Användbar minimapkarta-info</h2><p>Minimap för Pixel Battle Team Crew på pixelzone.io.</p><p><b>Instruktioner:</b> Använd Tampermonkey för att installera scriptet. Mallar laddas automatiskt.</p><p><b>Tangenter:</b><ul><li>Mellanslag: Visa/dölj karta (uppdaterar mallar).</li><li>QERTYUIOP FGHJKLZ: Välj färg.</li><li>+/- (numpad eller =/-): Zooma.</li><li>0: Växla auto-färg.</li><li>9: Kontrollera uppdateringar.</li></ul></p><p>Kartan startar dold — öppna med mellanslag. Tack till: Edward Scorpio, Ultimate Pekar, MDOwlman. Skapad 18.09.2024.</p>",
-  kk: "<h2>Мини-карта туралы пайдалы ақпарат</h2><p>Pixel Battle Team Crew үшін pixelzone.io мини-картасы.</p><p><b>Нұсқаулар:</b> Tampermonkey көмегімен скриптті орнатыңыз. Үлгілер автоматты түрде жүктеледі.</p><p><b>Пернелер:</b><ul><li>Бос орын: Картаны көрсету/жасыру (үлгілерді жаңартады).</li><li>QERTYUIOP FGHJKLZ: Түсті таңдау.</li><li>+/- (numpad немесе =/-): Масштабтау.</li><li>0: Авто-түс ауыстыру.</li><li>9: Жаңартуларды тексеру.</li></ul></p><p>Карта жасырын басталады — бос орынмен ашыңыз. Рақмет: Edward Scorpio, Ultimate Pekar, MDOwlman. Жасалған: 18.09.2024.</p>"
+  ru: "<h2>Полезная информация о мини-карте</h2><p>Мини-карта для Pixel Battle Team Crew в pixelzone.io.</p><p><b>Инструкции:</b> Шаблоны загружаются автоматически.</p><p><b>Клавиши:</b><ul><li>Пробел: Показать/скрыть карту (обновляет шаблоны).</li><li>QERTYUIOP FGHJKLZ: Выбор цвета.</li><li>+/- (numpad или =/-): Масштаб.</li><li>0: Авто-выбор цвета.</li><li>9: Проверить обновления.</li></ul></p><p>Карта стартует скрытой — открой её пробелом. Благодарности: Edward Scorpio, Ultimate Pekar, MDOwlman. Создана 18.09.2024.</p>",
+  en: "<h2>Useful Minimap Info</h2><p>Minimap for Pixel Battle Team Crew on pixelzone.io.</p><p><b>Instructions:</b>Templates load automatically.</p><p><b>Keys:</b><ul><li>Space: Show/hide map (reloads templates).</li><li>QERTYUIOP FGHJKLZ: Select color.</li><li>+/- (numpad or =/-): Zoom.</li><li>0: Toggle auto-color.</li><li>9: Check updates.</li></ul></p><p>Map starts hidden — open with space. Thanks to: Edward Scorpio, Ultimate Pekar, MDOwlman. Created 09/18/2024.</p>",
+  es: "<h2>Información útil del minimapa</h2><p>Minimapa para Pixel Battle Team Crew en pixelzone.io.</p><p><b>Instrucciones:</b> Las plantillas se cargan automáticamente.</p><p><b>Teclas:</b><ul><li>Espacio: Mostrar/ocultar mapa (recarga plantillas).</li><li>QERTYUIOP FGHJKLZ: Seleccionar color.</li><li>+/- (numpad o =/-): Zoom.</li><li>0: Alternar auto-color.</li><li>9: Verificar actualizaciones.</li></ul></p><p>El mapa inicia oculto — ábrelo con espacio. Gracias a: Edward Scorpio, Ultimate Pekar, MDOwlman. Creado el 18/09/2024.</p>",
+  tr: "<h2>Yararlı Minimapa Bilgileri</h2><p>Pixel Battle Team Crew için pixelzone.io minimapası.</p><p><b>Talimatlar:</b> Şablonlar otomatik yüklenir.</p><p><b>Tuştar:</b><ul><li>Boşluk: Haritayı göster/gizle (şablonları yeniler).</li><li>QERTYUIOP FGHJKLZ: Renk seç.</li><li>+/- (numpad veya =/-): Yakınlaştır.</li><li>0: Otomatik renk değiştir.</li><li>9: Güncellemeleri kontrol et.</li></ul></p><p>Harita gizli başlar — boşlukla aç. Teşekkürler: Edward Scorpio, Ultimate Pekar, MDOwlman. Oluşturuldu: 18.09.2024.</p>",
+  fi: "<h2>Hyödyllistä minimap-tietoa</h2><p>Minimappi Pixel Battle Team Crew'lle pixelzone.io:ssa.</p><p><b>Ohjeet:</b> Mallit latautuvat automaattisesti.</p><p><b>Näppäimet:</b><ul><li>Välilyönti: Näytä/piilota kartta (päivittää mallit).</li><li>QERTYUIOP FGHJKLZ: Valitse väri.</li><li>+/- (numpad tai =/-): Zoomaa.</li><li>0: Vaihda automaattinen väri.</li><li>9: Tarkista päivitykset.</li></ul></p><p>Kartta alkaa piilotettuna — avaa välilyönnillä. Kiitos: Edward Scorpio, Ultimate Pekar, MDOwlman. Luotu 18.09.2024.</p>",
+  fr: "<h2>Informations utiles sur la minicarte</h2><p>Minicarte pour Pixel Battle Team Crew sur pixelzone.io.</p><p><b>Instructions :</b> Les modèles se chargent automatiquement.</p><p><b>Touches :</b><ul><li>Espace : Afficher/masquer la carte (recharge les modèles).</li><li>QERTYUIOP FGHJKLZ : Sélectionner la couleur.</li><li>+/- (numpad ou =/-) : Zoom.</li><li>0 : Basculer auto-couleur.</li><li>9 : Vérifier les mises à jour.</li></ul></p><p>La carte commence masquée — ouvrez-la avec espace. Merci à : Edward Scorpio, Ultimate Pekar, MDOwlman. Créée le 18/09/2024.</p>",
+  pt: "<h2>Informações úteis do minimapa</h2><p>Minimapa para Pixel Battle Team Crew no pixelzone.io.</p><p><b>Instruções:</b> Modelos carregam automaticamente.</p><p><b>Teclas:</b><ul><li>Espaço: Mostrar/ocultar mapa (recarrega modelos).</li><li>QERTYUIOP FGHJKLZ: Selecionar cor.</li><li>+/- (numpad ou =/-): Zoom.</li><li>0: Alternar auto-cor.</li><li>9: Verificar atualizações.</li></ul></p><p>O mapa inicia oculto — abra com espaço. Obrigado a: Edward Scorpio, Ultimate Pekar, MDOwlman. Criado em 18/09/2024.</p>",
+  sv: "<h2>Användbar minimapkarta-info</h2><p>Minimap för Pixel Battle Team Crew på pixelzone.io.</p><p><b>Instruktioner:</b> Mallar laddas automatiskt.</p><p><b>Tangenter:</b><ul><li>Mellanslag: Visa/dölj karta (uppdaterar mallar).</li><li>QERTYUIOP FGHJKLZ: Välj färg.</li><li>+/- (numpad eller =/-): Zooma.</li><li>0: Växla auto-färg.</li><li>9: Kontrollera uppdateringar.</li></ul></p><p>Kartan startar dold — öppna med mellanslag. Tack till: Edward Scorpio, Ultimate Pekar, MDOwlman. Skapad 18.09.2024.</p>",
+  kk: "<h2>Мини-карта туралы пайдалы ақпарат</h2><p>Pixel Battle Team Crew үшін pixelzone.io мини-картасы.</p><p><b>Нұсқаулар:</b> Үлгілер автоматты түрде жүктеледі.</p><p><b>Пернелер:</b><ul><li>Бос орын: Картаны көрсету/жасыру (үлгілерді жаңартады).</li><li>QERTYUIOP FGHJKLZ: Түсті таңдау.</li><li>+/- (numpad немесе =/-): Масштабтау.</li><li>0: Авто-түс ауыстыру.</li><li>9: Жаңартуларды тексеру.</li></ul></p><p>Карта жасырын басталады — бос орынмен ашыңыз. Рақмет: Edward Scorpio, Ultimate Pekar, MDOwlman. Жасалған: 18.09.2024.</p>"
 },
     helpButton: {
     ru: "Помощь",
@@ -1531,7 +1959,7 @@ function updateLanguage(lang) {
   const applyText = (id, key) => {
     const el = document.getElementById(id);
     if (el && texts[key]) {
-      const translation = texts[key][lang] || texts[key]["ru"]; // если нет языка, берём русский
+      const translation = texts[key][lang] || texts[key]["RU"]; // если нет языка, берём русский
       if (id === "versionLabel") {
         el.textContent = `${translation}: ${MINIMAP_VERSION}`;
       } else {
