@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Мини-карта 2x2 Pixel Battle Team Crew
 // @namespace    http://tampermonkey.net/
-// @version      2.2.19.3
+// @version      2.2.20
 // @description  Overlay-like tool for pixelzone.io
 // @author       meatie, modified by Yoldaş Pisicik. URL adaptive by Edward Scorpio. 2x2 Designed by MDOwlman.
 // @match        https://pixelzone.io/*
@@ -39,7 +39,7 @@ Number.prototype.between = function (a, b) {
   return this > min && this < max;
 };
 var autoColorEnabled = false;
-const MINIMAP_VERSION = "2.2.19.3";
+const MINIMAP_VERSION = "2.2.20";
 
 function startup() {
 document.addEventListener('keydown', function(e) {
@@ -419,16 +419,16 @@ div.innerHTML = `
         );
 
     background-size:
-        6px 6px,
-        6px 6px,
+        4px 4px,
+        4px 4px,
         32px 32px,
         32px 32px,
-        2px 12px;
+        4px 8px;
 
     background-position: 0 0;
     border-radius: 0px;
-    box-shadow: inset 0 0 6px #666, 0 2px 1px rgba(0, 0, 0, 0.4);
-    padding: 6px;
+    box-shadow: inset 0 0 4px #666, 0 2px 1px rgba(0, 0, 0, 0.4);
+    padding: 4px;
 }
 
 #minimap_settings button,
@@ -529,14 +529,14 @@ div.innerHTML = `
 #minimap-config span,
 #autoColorButton,
 #zoomDisplay {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 0 3px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 0 4px rgba(255, 255, 255, 0.3);
     transition: transform 0.1s ease, box-shadow 0.2s ease;
 }
 
 #minimap-config span:active,
 #autoColorButton:active {
     transform: scale(0.96);
-    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.4);
+    box-shadow: inset 1px 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 #zoomDisplay {
@@ -590,14 +590,14 @@ background-color: #202020;
         repeating-linear-gradient(
             0deg,
             rgba(255,255,255,0.08) 0px,
-            rgba(255,255,255,0.08) 1px,
+            rgba(255,255,255,0.08) 4px,
             transparent 4px,
             transparent 4px
         ),
         repeating-linear-gradient(
             90deg,
             rgba(255,255,255,0.08) 0px,
-            rgba(255,255,255,0.08) 1px,
+            rgba(255,255,255,0.08) 4px,
             transparent 4px,
             transparent 4px
         );
@@ -674,7 +674,7 @@ background-color: #202020;
     background: purple !important;
     color: white !important;
     padding: 4px 6px !important;
-    margin: 6px !important;
+    margin: 8px !important;
     display: inline-block;
 }
 
@@ -682,7 +682,7 @@ background-color: #202020;
     background: #222 !important;
     color: #fff !important;
     border: 2px solid #000 !important;
-    padding: 4px !important;
+    padding: 8px !important;
     outline: none !important;
 }
 
@@ -690,7 +690,7 @@ background-color: #202020;
 #versionLabel {
     background: blue !important;
     color: #0fffff !important;
-    padding: 4px 6px !important;
+    padding: 2px 2px !important;
     box-shadow: inset 0 0 2px #004;
 }
 
@@ -698,7 +698,7 @@ background-color: #202020;
 </style>
 
 <div id="minimapbg" style="background-color:rgba(202,202,202,100%); border-radius:0px; position:absolute;right:5px; bottom:0; z-index:1;border-style:double;border-width:6px 6px 6px 6px;border-color:black">
-    <div class="posy unselectable" id="posyt" style="background-size:100%; color:#fff; text-align:center; width:auto; height:auto; padding:2px 2px 3px 2px;">
+    <div class="posy unselectable" id="posyt" style="background-size:100%; color:#fff; text-align:center; width:auto; height:auto; padding:2px 2px 4px 2px;">
       <div id="minimap-text" style="background:DimGray;padding-left:10px;padding-right:10px;padding-top:2px;padding-bottom:2px;border-radius:0px ;user-select:none;"></div>
       <div id="minimap-title" style="background:Black;border-radius:0;;padding-left:10px;padding-right:10px;user-select:none;">=2X2 МИНИ-КАРТА=</div>
       <div id="minimap-box" style="position:relative;width:390px;height:280px">
@@ -711,7 +711,7 @@ background-color: #202020;
         <span id="settings-map" style="cursor:pointer;user-select:none;font-weight:normal;font-size:0.75em;background:Teal;padding-left:2px;padding-right:2px;;padding-top:6px;padding-bottom:6px;border-radius:0;margin-right:-13px;border-style:dashed;border-width:2px 0;border-color:#006060">Настройки</span>
         <span id="zoom-plus" style="cursor:pointer;font-weight:normal;font-size:0.75em;user-select:none;background:Crimson;padding-left:1px;;padding-top:8px;padding-bottom:8px;padding-right:1px;border-radius:0px;border-style:solid;border-width:0 2px 2px ;border-color:#BA021A;margin-left:0;margin-right:-7px">+</span>
         <span id="zoom-minus" style="cursor:pointer;font-weight:normal;font-size:0.75em;user-select:none;background:Blue;padding-left:1px;;padding-top:8px;padding-bottom:8px;padding-right:1px;border-radius:0px;border-style:solid;border-width:2px 2px 0;border-color:#0000AA;margin-left:-7px;margin-right:-6px">-</span>
-       <span id="autoColorButton" style="cursor:pointer;font-weight:normal;font-size:0.75em;padding:0 6px 0 6px;border-radius:0;background:black;;padding-top:8px;padding-bottom:8px;margin-left:-6px;margin-right:0px;border-style:double;border-width:4px;border-color:Slategray;transition: background-color 0.4s ease, color 0.8s ease;">Авто-цвет</span>
+       <span id="autoColorButton" style="cursor:pointer;font-weight:normal;font-size:0.75em;padding:0 6px 0 6px;border-radius:0;background:black;;padding-top:8px;padding-bottom:8px;margin-left:-6px;margin-right:0px;border-style:double;border-width:4px;border-color:Slategray;transition: background-color 0.8s ease, color 0.8s ease;">Авто-цвет</span>
       </div>
     </div>
     <div id="minimap_settings" style="background-size:100%;border-radius:0px; width:auto; height:auto; text-align:center; display:none;padding: 4px 4px 4px 4px;">
@@ -746,6 +746,7 @@ background-color: #202020;
         <option value="pt">🇵🇹 Português</option>
         <option value="sv">🇸🇪 Svenska</option>
         <option value="kk">🇰🇿 Қазақша</option>
+        <option value="it">🇮🇹 Italiano</option>
       </select>
       <p>
         <span id="volumeLabel" style="color:#FFFFFF;background-color:NAVY;padding:6px ;margin:10px;border-radius:0px">Звук</span>
@@ -753,7 +754,7 @@ background-color: #202020;
       </p>
       <p>
         <span id="check-updates" style="cursor:pointer;user-select:none;background:#01796F;padding-left:4px;padding-right:4px;margin:20px 20px 20px 20px;border-radius:0px;">Обновления</span>
-        <span id="versionLabel" style="color:#0fffff;background:Blue;padding-left:4px;padding-right:4px;border-radius:0px;">Версия: 2.2.19.3</span>
+        <span id="versionLabel" style="color:#0fffff;background:Blue;padding-left:4px;padding-right:4px;border-radius:0px;">Версия: 2.2.20</span>
       </p>
       <p>
         <span id="settings-map-2" style="cursor:pointer;user-select:none;text-align:center;background:#003153;padding-left:6px;padding-right:6px;border-radius:0px;margin:6px;">Вернуться</span>
@@ -926,6 +927,10 @@ if (zoomPlus) {
 setTimeout(() => {
   const Lang = localStorage.getItem("minimapLang") || "ru";
   updateLanguage(Lang);
+     const infoEl = document.getElementById("infoContent");
+  if (infoEl && texts.infoContent && texts.infoContent[Lang]) {
+    infoEl.innerHTML = texts.infoContent[Lang];
+  }
 }, 100);
 document.getElementById('infoButton').addEventListener('click', function(){
    audioEls.info.currentTime = 0;
@@ -1135,6 +1140,8 @@ window.addEventListener('click', (event) => {
         const r = map.getBoundingClientRect();
         startLeft = r.left;
         startBottom = window.innerHeight - r.bottom;
+          map.style.right = "auto";
+          map.style.left = r.left + "px";
         map.setPointerCapture && map.setPointerCapture(ev.pointerId);
         map.style.cursor = "grabbing";
       }, { passive: false });
@@ -1269,6 +1276,9 @@ function mymousemove(evt) {
   }
 
  if (!autoColorEnabled) return;
+    setTimeout(() => {
+  applyAutoColor(hoveringColor);
+}, 10);
 var hoveringColor = window.board.getImageData(195, 140, 1, 1).data + '';
   if (hoveringColor[3] === 0) return;
 
@@ -1337,30 +1347,30 @@ function updateloop() {
             height: 1009
         },
         "Map 2": {
-            name: "https://i.ibb.co/d4Dmz2D0/arstotzka-turkey-newest.png",
+            name: "https://i.ibb.co/bgQPDg6G/image-1.png",
             x: 685,
             y: -686,
-            width: 807,
+            width: 900,
             height: 1400
         },
         "new_art_3": {
             name: "https://i.ibb.co/5h87dMCg/Banknote-Arstotzka.png",
             x: 1354,
             y: 78,
-            width: 189,
-            height: 91
+            width: 200,
+            height: 100
         },
         "new_art_4": {
             name: "https://i.ibb.co/ycybPX3V/dither-it-IMG-9276-11.png",
             x: 1481,
             y: -482,
-            width: 248,
-            height: 248
+            width: 260,
+            height: 260
         },
         "MDOWLMAN": {
         name: "https://i.ibb.co/N6NTbKdQ/image-1.png",
-        x: 1420,
-        y: -98,
+        x: 1365,
+        y: -51,
         width: 128,
         height: 129
          },
@@ -1393,25 +1403,144 @@ function updateloop() {
          height: 243
      },
            "2x2=4" :{
-         name: "https://i.ibb.co/MkdTGGLp/01-JCYJDF-2x2.png",
+         name: "https://i.ibb.co/JjSRZCHC/01-JCYJDF1-2x2.png",
          x: -4096,
          y: -2224,
-         width:1649,
+         width:1900,
          height:3435
              },
      "2x2=42" :{
-         name: "https://i.ibb.co/270Xtgw9/02-JCYJDF-2x2.png",
+         name: "https://i.ibb.co/Ld90GMt6/02-JCYJDF-2x2.png",
          x: -2447,
          y: -2224,
-         width:1650,
+         width:1800,
          height:3435
              },
           "NEWEST" :{
          name: "https://i.ibb.co/ZR17xqtt/Yfit-hflbj.png",
          x: -3408,
          y: -2589,
-         width:186,
-         height: 201
+         width:237,
+         height: 228
+     },
+          "ANEWEST" :{
+         name: "https://i.ibb.co/Kp7pqL6k/image.png",
+         x: 1481,
+         y: -710,
+         width:240,
+         height: 230
+     },
+              "NIGDEGOROD" :{
+         name: "https://i.ibb.co/vC3XQ9Xd/Nigdegorod.png",
+         x: -2666,
+         y: -2345,
+         width:463,
+         height: 350
+     },
+                   "DOCTOR" :{
+         name: "https://i.ibb.co/CpN8tgnS/image.png",
+         x: -2666,
+         y: -2713,
+         width:400,
+         height: 400
+     },
+     "YANENE" :{
+         name: "https://i.ibb.co/YFpzsJ5g/Pixel-Zone244.png",
+         x: -535,
+         y: -3562,
+         width: 244,
+         height:244
+         },
+      "YANE" :{
+         name: "https://i.ibb.co/3mQ48K7s/kek4chan.png",
+         x: 1511,
+         y: -1044,
+         width: 272,
+         height:200
+         },
+     "Passports":{
+         name: "https://i.ibb.co/h6V4VPR/image.png",
+         x: 1460,
+         y: 189,
+         width: 250,
+         height:700
+         },
+     "Photography" :{
+     name:"https://i.ibb.co/bj8mJT3T/image.png",
+         x: 1364,
+         y: -211,
+         width: 176,
+         height:176
+              },
+   "Paper" :{
+     name:"https://i.ibb.co/WpD3M0hF/image.png",
+         x:1493,
+         y:-24,
+         width: 275,
+         height:225
+     },
+     "Frogland":{
+              name:"https://i.ibb.co/ccXZPYHF/image.png",
+         x:1291,
+         y:-948,
+         width: 100,
+         height:100
+     },
+     "Scarf" :{
+         name:"https://i.ibb.co/rR8NrG8Z/image.png",
+         x:1729,
+         y:-656,
+         width:300,
+         height:422
+     },
+   "Kekifrogs" :{
+     name:"https://i.ibb.co/Kp2cYjT9/KEKISTAN.png",
+     x:921,
+     y:-915,
+     width:323,
+     height:41
+ },
+"NewArst"     :{
+     name:"https://i.ibb.co/Q4rL6p3/image.png",
+     x:1881,
+     y:-854,
+     width:224,
+     height:356
+},
+     "Coulone" :{
+     name:"https://i.ibb.co/LhgQ83B3/image.png",
+     x:1543,
+     y:78,
+     width:80,
+     height:70,
+     },
+     "SHY" :{
+name:"https://i.ibb.co/4QyYLC3/image.png",
+         x:1664,
+         y:-50,
+         width:150,
+         height:85
+     },
+     "Shheeep":{
+         name:"https://i.ibb.co/5xk2dhCj/image.png",
+         x:918,
+         y:-717,
+         width:350,
+         height:220,
+     },
+     "ForTea" :{
+         name:"https://i.ibb.co/n8chJzMG/image.png",
+         x:921,
+         y:-982,
+         width: 75,
+         height: 80
+     },
+          "This Italy":{
+    name:"https://i.ibb.co/C5QCmS8Z/image-4.png",
+     x:-449,
+     y:-449,
+     width: 1300,
+     height:880,
      },
     };
     if (!toggle_follow) getCenter();
@@ -1788,42 +1917,43 @@ function addUpdateCheckListener() {
 const texts = {
   hideMap: {
     ru: "Скрыть", en: "Hide", es: "Ocultar", tr: "Gizle", fi: "Piilota",
-    fr: "Сeler", pt: "Ocultar", sv: "Dölj", kk: "Жасыру"
+    fr: "Сeler", pt: "Ocultar", sv: "Dölj", kk: "Жасыру", it: "Celare"
   },
   settings: {
     ru: "Настройки", en: "Settings", es: "Ajustes", tr: "Ayarlar", fi: "Asetukset",
-    fr: "Réglage", pt: "Ajustar", sv: "Justera", kk: "Орнату"
+    fr: "Réglage", pt: "Ajustar", sv: "Justera", kk: "Орнату", it:"Regolare"
   },
   openText: {
     ru: "ОТКРЫТЬ МИНИ-КАРТУ", en: "OPEN MINIMAP", es: "ABRIR MINIMAPA", tr: "MİNİ HARİTA AÇ", fi: "AVAA PIIRROS",
-    fr: "OUVRIR MINICARTE", pt: "ABRIR MINIMAPA", sv: "ÖPPNA MINIKARTA", kk: "МИНИ-КАРТАНЫ АШУ"
+    fr: "OUVRIR MINICARTE", pt: "ABRIR MINIMAPA", sv: "ÖPPNA MINIKARTA", kk: "МИНИ-КАРТАНЫ АШУ", it:"APRI MINI-MAPPA"
   },
   autoColorOn: {
     ru: "Aвто-цвет", en: "Auto-Color", es: "Auto-Color", tr: "Otomat-Renk", fi: "Autoväri",
-    fr: "Auto-couleur", pt: "Auto-Cor", sv: "Auto-färg", kk: "Авто-түстер"
+    fr: "Auto-couleur", pt: "Auto-Cor", sv: "Auto-färg", kk: "Авто-түстер", it: "Auto-color"
   },
   autoColorOff: {
     ru: "Авто-цвет", en: "Auto-Color", es: "Auto-Color", tr: "Otomat-Renk", fi: "Autoväri",
-    fr: "Auto-couleur", pt: "Auto-Cor", sv: "Auto-färg", kk: "Авто-түстер"
+    fr: "Auto-couleur", pt: "Auto-Cor", sv: "Auto-färg", kk: "Авто-түстер", it: "Auto-color"
   },
   back: {
     ru: "Вернуться", en: "Back", es: "Volver", tr: "Geri", fi: "Takaisin",
-    fr: "Retour", pt: "Voltar", sv: "Tillbaka", kk: "Артқа"
+    fr: "Retour", pt: "Voltar", sv: "Tillbaka", kk: "Артқа", it: "Indietro"
   },
   updates: {
     ru: "Обновления", en: "Updates", es: "Actualizaciones", tr: "Güncellemeler", fi: "Päivitykset",
-    fr: "Mises à jour", pt: "Atualizações", sv: "Uppdateringar", kk: "Жаңартулар"
+    fr: "Mises à jour", pt: "Atualizações", sv: "Uppdateringar", kk: "Жаңартулар", it:"Aggiornamenti",
   },
   info: {
     ru: "Информация", en: "Info", es: "Info", tr: "Bilgi", fi: "Info",
-    fr: "Info", pt: "Info", sv: "Info", kk: "Ақпарат"
+    fr: "Info", pt: "Info", sv: "Info", kk: "Ақпарат", it:"Info"
   },
   volume: {
       ru:"Звук", en:"Volume", es:"Volumen", tr:"Ses", fi:"Äänenvoim",
-      fr:"Volume", pt:"Volume",sv:"Volym",kk:"Дыбыс" },
+      fr:"Volume", pt:"Volume",sv:"Volym",kk:"Дыбыс", it:"Suono"
+  },
   settingsTitle:{
       ru:"Настройки Мини-Карты", en:"Minimap Settings", es:"Configuración del minimapa", tr:"Mini Harita Ayarları", fi:"Pienikartan asetukset",
-      fr:"Paramètres de la mini-carte", pt:"Configurações do minimapa", sv:"Minikarta inställningar", kk:"Мини-карта баптаулары" },
+      fr:"Paramètres de la mini-carte", pt:"Configurações do minimapa", sv:"Minikarta inställningar", kk:"Мини-карта баптаулары", it:"Impostazioni Mini-Mappa" },
     infoContent: {
     ru: " <p>Привет фанат телеканала 2х2! <p>Данная мини-карта сделана специально для тебя!</p> <p>Благодарности:</p> <ul> <li>Edward Scorpio — генерал Пиксельных войн</li> <li>Ultimate Pekar — генерал Пиксельных войн</li> <li>MDOwlman — генерал-коменданторе</li> </ul> <p>Карта создана 18 сентября 2024 года.</p>",
     en: " <p>Hello 2x2 TV fan! This minimap was made just for you!</p> <p>Acknowledgements:</p> <ul> <li>Edward Scorpio — Pixel Wars General</li> <li>Ultimate Pekar — Pixel Wars General</li> <li>MDOwlman — Grand Commander</li></ul> <p>Map officially created on September 18, 2024.</p>",
@@ -1833,7 +1963,8 @@ const texts = {
     fr: "<p>Bonjour fan de la chaîne 2x2 ! <p>Cette minicarte a été créée spécialement pour toi !</p> <p>Remerciements :</p> <ul> <li>Edward Scorpio — Général des Guerres de Pixels</li><li>Ultimate Pekar — Général des Guerres de Pixels</li><li>MDOwlman — Grand Commandant</li></ul> <p>La carte a été officiellement créée le 18 septembre 2024.</p>",
     pt: "<p>Olá fã do canal 2x2 ! <p> Este minimapa foi feito especialmente para você!</p> <p>Agradecimentos:</p> <ul> <li>Edward Scorpio — General das Guerras de Pixels</li> <li>Ultimate Pekar — General das Guerras de Pixels</li> <li>MDOwlman — Grande Comandante</li> </ul> <p>O mapa foi criado oficialmente em 18 de setembro de 2024.</p>",
     sv: " <p> Hej 2x2 TV-fan! Denna minimap har skapats speciellt för dig!</p> <p>Tack till:</p> <ul> <li>Edward Scorpio — General för Pixelkrigen</li> <li>Ultimate Pekar — General för Pixelkrigen</li><li>MDOwlman — Stor kommendant</li></ul> <p>Kartan skapades officiellt den 18 september 2024.</p>",
-    kk:"<p>2x2 телеканалының жанкүйері, сәлем! <p>Бұл мини-карта дәл сіз үшін жасалды!</p> <p>Рақмет:</p><ul> <li>Edward Scorpio — Пиксель соғыстары генералы</li><li>Ultimate Pekar — Пиксель соғыстары генералы</li><li>MDOwlman — Бас қолбасшы</li></ul><p>Карта ресми түрде 2024 жылғы 18 қыркүйекте жасалған.</p>"
+    kk:"<p>2x2 телеканалының жанкүйері, сәлем! <p>Бұл мини-карта дәл сіз үшін жасалды!</p> <p>Рақмет:</p><ul> <li>Edward Scorpio — Пиксель соғыстары генералы</li><li>Ultimate Pekar — Пиксель соғыстары генералы</li><li>MDOwlman — Бас қолбасшы</li></ul><p>Карта ресми түрде 2024 жылғы 18 қыркүйекте жасалған.</p>",
+         it: "<p>Ciao fan di 2x2!</p><p>Questa mini-mappa è stata creata apposta per te!</p><p>Questa mini-mappa è stata realizzata grazie alle seguenti persone:</p> <p>Generale delle guerre pixel Edward Scorpio</p><p>Generale delle guerre pixel Ultimate Pekar</p> <p>Generale-Comandante MDOwlman</p><p>Questa mappa è stata creata ufficialmente il 18 settembre 2024.</p>"
     },
     language: {
     ru: "Язык",
@@ -1844,7 +1975,8 @@ const texts = {
     fr: "Langue",
     pt: "Idioma",
     sv: "Språk",
-    kk: "Тіл"
+    kk: "Тіл",
+    it: "Lingua"
   },
   mode: {
     ru: "Режим",
@@ -1855,11 +1987,12 @@ const texts = {
     fr: "Mode",
     pt: "Modo",
     sv: "Läge",
-    kk: "Режим"
+    kk: "Режим",
+    it: "Lingua",
   },
     version: {
     ru: "Версия", en: "Version", es: "Versión", tr: "Sürüm", fi: "Versio",
-    fr: "Version", pt: "Versão", sv: "Version", kk: "Нұсқа"
+    fr: "Version", pt: "Versão", sv: "Version", kk: "Нұсқа", it: "Versione",
 },
     updateAvailable: {
     ru: "Доступна новая версия скрипта. Хотите обновить?",
@@ -1870,7 +2003,8 @@ const texts = {
     fr: "Une nouvelle version du script est disponible. Voulez-vous mettre à jour ?",
     pt: "Uma nova versão do script está disponível. Deseja atualizar?",
     sv: "En ny version av skriptet är tillgänglig. Vill du uppdatera?",
-    kk: "Скриптің жаңа нұсқасы қолжетімді. Жаңартқыңыз келе ме?"
+    kk: "Скриптің жаңа нұсқасы қолжетімді. Жаңартқыңыз келе ме?",
+    it: "È disponibile una nuova versione dello script. Vuoi aggiornare?"
   },
   noUpdates: {
     ru: "У вас установлена последняя версия скрипта. Обновлений нет.",
@@ -1881,7 +2015,8 @@ const texts = {
     fr: "Vous avez la dernière version du script. Pas de mises à jour.",
     pt: "Você já possui a versão mais recente do script. Nenhuma atualização.",
     sv: "Du har den senaste versionen av skriptet. Inga uppdateringar.",
-    kk: "Сізде скриптің соңғы нұсқасы орнатылған. Жаңартулар жоқ."
+    kk: "Сізде скриптің соңғы нұсқасы орнатылған. Жаңартулар жоқ.",
+    it: "Hai l'ultima versione dello script installata. Non ci sono aggiornamenti."
   },
   updateError: {
     ru: "Ошибка при проверке обновлений",
@@ -1892,7 +2027,8 @@ const texts = {
     fr: "Erreur lors de la vérification des mises à jour",
     pt: "Erro ao verificar atualizações",
     sv: "Fel vid kontroll av uppdateringar",
-    kk: "Жаңартуларды тексеру кезінде қате орын алды"
+    kk: "Жаңартуларды тексеру кезінде қате орын алды",
+    it: "Errore durante il controllo degli aggiornamenti"
   },
    emptyTemplates: {
     ru: "Пусто. Здесь трафаретов пока нет.",
@@ -1903,7 +2039,8 @@ const texts = {
     fr: "Vide. Aucun modèle ici pour l'instant.",
     pt: "Vazio. Ainda não há modelos aqui.",
     sv: "Tomt. Inga mallar här ännu.",
-    kk: "Бос. Әзірге мұнда үлгілер жоқ."
+    kk: "Бос. Әзірге мұнда үлгілер жоқ.",
+    it:"Essere vuoto. Non ci sono ancora stencil qui."
   },
     versionTitle: {
   ru: "=2X2 МИНИ-КАРТА=",
@@ -1914,7 +2051,8 @@ const texts = {
   fr: "=2X2 MINI-CARTE=",
   pt: "=2X2 MINI MAPA=",
   sv: "=2X2 MINIKARTA=",
-  kk: "=2X2 МИНИ-КАРТА="
+  kk: "=2X2 МИНИ-КАРТА=",
+  it: "=2X2 MINI-MAPPA="
     },
   showGrid: {
     ru: "Показывать сетку",
@@ -1940,7 +2078,8 @@ const texts = {
   fr: "<h2>Informations utiles sur la minicarte</h2><p>Minicarte pour Pixel Battle Team Crew sur pixelzone.io.</p><p><b>Instructions :</b> Les modèles se chargent automatiquement.</p><p><b>Touches :</b><ul><li>Espace : Afficher/masquer la carte (recharge les modèles).</li><li>QERTYUIOP FGHJKLZ : Sélectionner la couleur.</li><li>+/- (numpad ou =/-) : Zoom.</li><li>0 : Basculer auto-couleur.</li><li>9 : Vérifier les mises à jour.</li></ul></p><p>La carte commence masquée — ouvrez-la avec espace. Merci à : Edward Scorpio, Ultimate Pekar, MDOwlman. Créée le 18/09/2024.</p>",
   pt: "<h2>Informações úteis do minimapa</h2><p>Minimapa para Pixel Battle Team Crew no pixelzone.io.</p><p><b>Instruções:</b> Modelos carregam automaticamente.</p><p><b>Teclas:</b><ul><li>Espaço: Mostrar/ocultar mapa (recarrega modelos).</li><li>QERTYUIOP FGHJKLZ: Selecionar cor.</li><li>+/- (numpad ou =/-): Zoom.</li><li>0: Alternar auto-cor.</li><li>9: Verificar atualizações.</li></ul></p><p>O mapa inicia oculto — abra com espaço. Obrigado a: Edward Scorpio, Ultimate Pekar, MDOwlman. Criado em 18/09/2024.</p>",
   sv: "<h2>Användbar minimapkarta-info</h2><p>Minimap för Pixel Battle Team Crew på pixelzone.io.</p><p><b>Instruktioner:</b> Mallar laddas automatiskt.</p><p><b>Tangenter:</b><ul><li>Mellanslag: Visa/dölj karta (uppdaterar mallar).</li><li>QERTYUIOP FGHJKLZ: Välj färg.</li><li>+/- (numpad eller =/-): Zooma.</li><li>0: Växla auto-färg.</li><li>9: Kontrollera uppdateringar.</li></ul></p><p>Kartan startar dold — öppna med mellanslag. Tack till: Edward Scorpio, Ultimate Pekar, MDOwlman. Skapad 18.09.2024.</p>",
-  kk: "<h2>Мини-карта туралы пайдалы ақпарат</h2><p>Pixel Battle Team Crew үшін pixelzone.io мини-картасы.</p><p><b>Нұсқаулар:</b> Үлгілер автоматты түрде жүктеледі.</p><p><b>Пернелер:</b><ul><li>Бос орын: Картаны көрсету/жасыру (үлгілерді жаңартады).</li><li>QERTYUIOP FGHJKLZ: Түсті таңдау.</li><li>+/- (numpad немесе =/-): Масштабтау.</li><li>0: Авто-түс ауыстыру.</li><li>9: Жаңартуларды тексеру.</li></ul></p><p>Карта жасырын басталады — бос орынмен ашыңыз. Рақмет: Edward Scorpio, Ultimate Pekar, MDOwlman. Жасалған: 18.09.2024.</p>"
+  kk: "<h2>Мини-карта туралы пайдалы ақпарат</h2><p>Pixel Battle Team Crew үшін pixelzone.io мини-картасы.</p><p><b>Нұсқаулар:</b> Үлгілер автоматты түрде жүктеледі.</p><p><b>Пернелер:</b><ul><li>Бос орын: Картаны көрсету/жасыру (үлгілерді жаңартады).</li><li>QERTYUIOP FGHJKLZ: Түсті таңдау.</li><li>+/- (numpad немесе =/-): Масштабтау.</li><li>0: Авто-түс ауыстыру.</li><li>9: Жаңартуларды тексеру.</li></ul></p><p>Карта жасырын басталады — бос орынмен ашыңыз. Рақмет: Edward Scorpio, Ultimate Pekar, MDOwlman. Жасалған: 18.09.2024.</p>",
+  it:"<h2>Informazioni utili sulla mini-mappa</h2><p>Mini-mappa per Pixel Battle Team Crew su pixelzone.io.</p><p><b>Istruzioni:</b> I template vengono caricati automaticamente.</p><p><b>Tasti:</b><ul><li>Spazio:Mostra/nasconde la mappa (aggiorna i template).</li><li>QERTYUIOP FGHJKLZ: Selezione del colore.</li><li>+/- (tastierino numerico oppure =/-): Zoom.</li><li>0: Selezione automatica del colore.</li><li>9: Controllare gli aggiornamenti.</li></ul></p><p>La mappa è inizialmente nascosta — aprila con la barra spaziatrice.Ringraziamenti: Edward Scorpio, Ultimate Pekar, MDOwlman.Creata il 18.09.2024.</p>"
 },
     helpButton: {
     ru: "Помощь",
@@ -1951,7 +2090,8 @@ const texts = {
     fr: "Aide",
     pt: "Ajuda",
     sv: "Hjälp",
-    kk: "Көмек"
+    kk: "Көмек",
+    it:"Assistenza"
 }
 };
 
